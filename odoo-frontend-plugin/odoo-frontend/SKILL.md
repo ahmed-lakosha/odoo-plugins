@@ -819,7 +819,7 @@ website.page (Actual Page with website_id)
        'category': 'Website/Theme',
        'author': 'TaqaTechno',
        'website': 'https://www.taqatechno.com/',
-       'support': 'info@taqatechno.com',
+       'support': 'support@example.com',
        'license': 'LGPL-3',
        'depends': ['website'],
        'data': [

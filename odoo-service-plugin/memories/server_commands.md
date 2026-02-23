@@ -30,7 +30,7 @@ C:\Python311\python.exe -m odoo [flags]
 ```bash
 -c, --config FILE     # Path to .conf file
                       # REQUIRED for anything beyond simple testing
-python -m odoo -c conf/TAQAT17.conf
+python -m odoo -c conf/myproject.conf
 ```
 
 ### Database Selection
@@ -71,10 +71,10 @@ python -m odoo -c conf/project.conf --http-port=8070
 
 ```bash
 # Development startup (most common for developers)
-python -m odoo -c conf/TAQAT17.conf --dev=all
+python -m odoo -c conf/myproject.conf --dev=all
 
 # Auto-reload only (lighter than all)
-python -m odoo -c conf/TAQAT17.conf --dev=reload
+python -m odoo -c conf/myproject.conf --dev=reload
 ```
 
 ### Development Mode Behavior
@@ -342,7 +342,7 @@ Complete list of `[options]` keys in .conf file:
 addons_path = odoo\addons,projects\myproject
 
 # --- Admin ---
-admin_passwd = secretpassword
+admin_passwd = CHANGE_ME
 
 # --- Database ---
 db_host = localhost
@@ -384,12 +384,12 @@ syslog = False              # Use syslog
 # --- Data ---
 data_dir = data             # Filestore and session path
 
-# --- Email ---
-smtp_server = localhost
-smtp_port = 25
-smtp_ssl = False
-smtp_user = False
-smtp_password = False
+# --- Email (optional) ---
+# smtp_server = <your-smtp-host>
+# smtp_port = 587
+# smtp_ssl = True
+# smtp_user = <your-smtp-user>
+# smtp_password = <your-smtp-password>
 
 # --- Reporting ---
 # wkhtmltopdf_command = wkhtmltopdf
@@ -446,14 +446,14 @@ my_module/
 source .venv/bin/activate  # Linux
 
 # 2. Start in dev mode
-python -m odoo -c conf/TAQAT17.conf --dev=all
+python -m odoo -c conf/myproject.conf --dev=all
 
 # 3. After code changes (Python/XML) — in another terminal
-python -m odoo -c conf/TAQAT17.conf -d taqat17 -u my_module --stop-after-init
+python -m odoo -c conf/myproject.conf -d mydb -u my_module --stop-after-init
 
 # 4. Restart server (dev mode picks up automatically, but restart ensures clean state)
 # Ctrl+C to stop, then:
-python -m odoo -c conf/TAQAT17.conf --dev=all
+python -m odoo -c conf/myproject.conf --dev=all
 ```
 
 ### Module Installation Flow
@@ -478,7 +478,7 @@ git pull origin main
 .venv/bin/pip install -r requirements.txt
 
 # 4. Update modules
-python -m odoo -c conf/TAQAT17.conf -d mydb -u my_module --stop-after-init
+python -m odoo -c conf/myproject.conf -d mydb -u my_module --stop-after-init
 
 # 5. Restart server
 sudo systemctl start odoo17

@@ -211,11 +211,11 @@ dbfilter =
 ```
 Recommended naming: {project}{version}[_{env}]
 Examples:
-  taqat17           # TAQAT, Odoo 17, production
-  taqat17_dev       # TAQAT, Odoo 17, development
-  taqat17_staging   # TAQAT, Odoo 17, staging
-  arcelia17         # arcelia, Odoo 17
-  relief_center19   # relief_center, Odoo 19
+  myproject17           # Project Alpha, Odoo 17, production
+  myproject17_dev       # Project Alpha, Odoo 17, development
+  myproject17_staging   # Project Alpha, Odoo 17, staging
+  myproject2_17         # Project Beta, Odoo 17
+  myproject19           # Project Gamma, Odoo 19
 ```
 
 ### Separate Instance Per Project
@@ -245,8 +245,8 @@ New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
 
 # Backup Odoo 17 projects
 $env:PGPASSWORD = "odoo"
-pg_dump -U odoo -h localhost -Fc taqat17 -f "$backupDir\taqat17_$timestamp.dump"
-pg_dump -U odoo -h localhost -Fc arcelia17 -f "$backupDir\arcelia17_$timestamp.dump"
+pg_dump -U odoo -h localhost -Fc mydb -f "$backupDir\mydb_$timestamp.dump"
+pg_dump -U odoo -h localhost -Fc mydb -f "$backupDir\mydb_$timestamp.dump"
 
 # Remove backups older than 30 days
 Get-ChildItem $backupDir -Filter "*.dump" | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-30)} | Remove-Item
@@ -281,8 +281,8 @@ export PGPASSWORD
 mkdir -p "$BACKUP_DIR"
 
 # Backup databases
-pg_dump -U odoo -h localhost -Fc taqat17 -f "$BACKUP_DIR/taqat17_$TIMESTAMP.dump"
-pg_dump -U odoo -h localhost -Fc arcelia17 -f "$BACKUP_DIR/arcelia17_$TIMESTAMP.dump"
+pg_dump -U odoo -h localhost -Fc mydb -f "$BACKUP_DIR/mydb_$TIMESTAMP.dump"
+pg_dump -U odoo -h localhost -Fc mydb -f "$BACKUP_DIR/mydb_$TIMESTAMP.dump"
 
 # Remove old backups (older than 30 days)
 find "$BACKUP_DIR" -name "*.dump" -mtime +30 -delete

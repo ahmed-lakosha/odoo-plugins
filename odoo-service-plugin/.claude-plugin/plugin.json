@@ -4,7 +4,7 @@
   "description": "Complete Odoo server lifecycle manager — start, stop, deploy, initialize, and manage Odoo across local venv, Docker, and any IDE (PyCharm, VSCode). Supports Odoo 14-19.",
   "author": {
     "name": "TaqaTechno",
-    "email": "contact@taqat-techno.com",
+    "email": "support@example.com",
     "url": "https://taqat-techno.com"
   },
   "homepage": "https://github.com/taqat-techno/plugins",

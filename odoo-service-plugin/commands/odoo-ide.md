@@ -31,7 +31,7 @@ Generates complete IDE configurations for PyCharm and VSCode to develop Odoo pro
 ### VSCode (Local Venv)
 
 ```
-/odoo-ide --ide vscode --env local --config TAQAT17.conf --project TAQAT
+/odoo-ide --ide vscode --env local --config myproject.conf --project TAQAT
 ```
 
 Creates:
@@ -59,7 +59,7 @@ Creates:
 ### Both IDEs (Local)
 
 ```
-/odoo-ide --ide both --env local --config TAQAT17.conf --project TAQAT
+/odoo-ide --ide both --env local --config myproject.conf --project TAQAT
 ```
 
 ### Generate Only .gitignore
@@ -133,6 +133,6 @@ Uses `odoo-service/scripts/ide_configurator.py`:
 ```python
 from ide_configurator import generate_all_vscode, generate_all_pycharm
 
-generate_all_vscode("myproject", config_file="TAQAT17.conf")
+generate_all_vscode("myproject", config_file="myproject.conf")
 generate_all_pycharm("myproject", env_type="docker")
 ```

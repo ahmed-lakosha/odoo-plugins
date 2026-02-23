@@ -123,7 +123,7 @@ def generate_manifest(config):
     'category': 'Website/Theme',
     'author': '{config["author"]}',
     'website': 'https://www.taqatechno.com/',
-    'support': 'info@taqatechno.com',
+    'support': 'support@example.com',
     'license': 'LGPL-3',
     'depends': ['website'],
     'data': [

@@ -75,8 +75,8 @@ Output:
 Found 5 database(s):
   - myproject17
   - myproject17_dev
-  - taqat17
-  - arcelia17
+  - mydb
+  - mydb
   - postgres
 ```
 
@@ -104,7 +104,7 @@ Queries `ir_module_module` table for all installed modules.
 ### Auto-Backup (from Config)
 
 ```
-/odoo-db auto-backup --config conf/TAQAT17.conf --output backups/
+/odoo-db auto-backup --config conf/myproject.conf --output backups/
 ```
 
 Reads `dbfilter` from config, backs up all matching databases.
@@ -170,7 +170,7 @@ create_database("newproject17")
 ```bash
 # Windows Task Scheduler or cron (Linux)
 # Daily backup at 2 AM
-python db_manager.py auto-backup --config conf/TAQAT17.conf --output backups/
+python db_manager.py auto-backup --config conf/myproject.conf --output backups/
 ```
 
 Implement log rotation — keep last 30 days of backups:

@@ -231,13 +231,13 @@ C:\odoo\odoo18\.venv\   # Python 3.11
 
 ```bash
 # Basic startup — reads all config from .conf file
-python -m odoo -c conf\TAQAT17.conf
+python -m odoo -c conf\myproject.conf
 
 # Explicit database override
-python -m odoo -c conf\TAQAT17.conf -d taqat17
+python -m odoo -c conf\myproject.conf -d mydb
 
 # Development mode — enables auto-reload, full tracebacks, asset recompilation
-python -m odoo -c conf\TAQAT17.conf --dev=all
+python -m odoo -c conf\myproject.conf --dev=all
 
 # Development mode options (can combine):
 # --dev=reload    — auto-reload Python on file change
@@ -247,36 +247,36 @@ python -m odoo -c conf\TAQAT17.conf --dev=all
 # --dev=all       — enable all dev options (recommended)
 
 # With workers (production mode)
-python -m odoo -c conf\TAQAT17.conf --workers=4
+python -m odoo -c conf\myproject.conf --workers=4
 
 # Custom port
-python -m odoo -c conf\TAQAT17.conf --http-port=8070
+python -m odoo -c conf\myproject.conf --http-port=8070
 
 # Install module and stop
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -i my_module --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -i my_module --stop-after-init
 
 # Update module and stop
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -u my_module --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -u my_module --stop-after-init
 
 # Update ALL modules (slow — use only when necessary)
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -u all --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -u all --stop-after-init
 ```
 
 ### Background Process (Windows)
 
 ```powershell
 # Method 1: Start-Process (PowerShell)
-Start-Process python -ArgumentList "-m odoo -c conf\TAQAT17.conf" -WindowStyle Hidden
+Start-Process python -ArgumentList "-m odoo -c conf\myproject.conf" -WindowStyle Hidden
 
 # Method 2: Background job
-$job = Start-Job -ScriptBlock { python -m odoo -c conf\TAQAT17.conf }
+$job = Start-Job -ScriptBlock { python -m odoo -c conf\myproject.conf }
 $job.Id  # Save this to stop later
 
 # Method 3: With log file
-Start-Process python -ArgumentList "-m odoo -c conf\TAQAT17.conf" -WindowStyle Hidden -RedirectStandardOutput "logs\odoo.log" -RedirectStandardError "logs\odoo_err.log"
+Start-Process python -ArgumentList "-m odoo -c conf\myproject.conf" -WindowStyle Hidden -RedirectStandardOutput "logs\odoo.log" -RedirectStandardError "logs\odoo_err.log"
 
 # Method 4: Windows service (nssm recommended for production)
-nssm install OdooService "python" "-m odoo -c C:\odoo\odoo17\conf\TAQAT17.conf"
+nssm install OdooService "python" "-m odoo -c C:\odoo\odoo17\conf\myproject.conf"
 nssm start OdooService
 ```
 
@@ -284,14 +284,14 @@ nssm start OdooService
 
 ```bash
 # Method 1: nohup (survives terminal close)
-nohup python -m odoo -c conf/TAQAT17.conf > logs/odoo.log 2>&1 &
+nohup python -m odoo -c conf/myproject.conf > logs/odoo.log 2>&1 &
 echo $! > logs/odoo.pid   # Save PID for later
 
 # Method 2: screen session
-screen -dmS odoo python -m odoo -c conf/TAQAT17.conf
+screen -dmS odoo python -m odoo -c conf/myproject.conf
 
 # Method 3: tmux session
-tmux new-session -d -s odoo "python -m odoo -c conf/TAQAT17.conf"
+tmux new-session -d -s odoo "python -m odoo -c conf/myproject.conf"
 
 # Method 4: systemd service (production)
 # Create /etc/systemd/system/odoo17.service:
@@ -303,7 +303,7 @@ After=network.target postgresql.service
 Type=simple
 User=odoo
 WorkingDirectory=/opt/odoo17
-ExecStart=/opt/odoo17/.venv/bin/python -m odoo -c conf/TAQAT17.conf
+ExecStart=/opt/odoo17/.venv/bin/python -m odoo -c conf/myproject.conf
 Restart=on-failure
 
 [Install]
@@ -596,27 +596,27 @@ data_dir = data_prod
 # ----------------------------------------
 # INSTALL (new module, first time)
 # ----------------------------------------
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -i my_module --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -i my_module --stop-after-init
 
 # Install multiple modules
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -i module1,module2,module3 --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -i module1,module2,module3 --stop-after-init
 
 # ----------------------------------------
 # UPDATE (after code changes — most common)
 # ----------------------------------------
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -u my_module --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -u my_module --stop-after-init
 
 # Update multiple modules
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -u module1,module2 --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -u module1,module2 --stop-after-init
 
 # Update ALL modules (slow, use sparingly)
-python -m odoo -c conf\TAQAT17.conf -d taqat17 -u all --stop-after-init
+python -m odoo -c conf\myproject.conf -d mydb -u all --stop-after-init
 
 # ----------------------------------------
 # REFRESH MODULE LIST
 # ----------------------------------------
 # Run before installing a NEW module that wasn't there before
-python -m odoo -c conf\TAQAT17.conf -d taqat17 --update-list
+python -m odoo -c conf\myproject.conf -d mydb --update-list
 
 # ----------------------------------------
 # SCAFFOLD NEW MODULE
@@ -1218,7 +1218,7 @@ Save to `.vscode/tasks.json`:
     {
       "id": "configFile",
       "type": "promptString",
-      "description": "Config file name (e.g. TAQAT17.conf)",
+      "description": "Config file name (e.g. myproject.conf)",
       "default": "odoo.conf"
     },
     {
@@ -1547,7 +1547,7 @@ python odoo-bin shell -d mydatabase
 docker-compose exec odoo python -m odoo shell -d mydatabase -c /etc/odoo/odoo.conf
 
 # With specific config
-python odoo-bin shell -d mydatabase -c conf/TAQAT17.conf
+python odoo-bin shell -d mydatabase -c conf/myproject.conf
 ```
 
 ### Common Shell Operations
@@ -1772,7 +1772,7 @@ pip install python-magic
 
 ```bash
 # Start Odoo
-python odoo-service/scripts/server_manager.py start --config conf/TAQAT17.conf --dev
+python odoo-service/scripts/server_manager.py start --config conf/myproject.conf --dev
 
 # Stop Odoo
 python odoo-service/scripts/server_manager.py stop --port 8069
@@ -1781,13 +1781,13 @@ python odoo-service/scripts/server_manager.py stop --port 8069
 python odoo-service/scripts/server_manager.py status
 
 # Restart
-python odoo-service/scripts/server_manager.py restart --config conf/TAQAT17.conf
+python odoo-service/scripts/server_manager.py restart --config conf/myproject.conf
 
 # Install module
-python odoo-service/scripts/server_manager.py install --config conf/TAQAT17.conf --db taqat17 --module my_module
+python odoo-service/scripts/server_manager.py install --config conf/myproject.conf --db mydb --module my_module
 
 # Update module
-python odoo-service/scripts/server_manager.py update --config conf/TAQAT17.conf --db taqat17 --module my_module
+python odoo-service/scripts/server_manager.py update --config conf/myproject.conf --db mydb --module my_module
 ```
 
 ### env_initializer.py
@@ -1857,7 +1857,7 @@ python odoo-service/scripts/docker_manager.py status
 
 ```bash
 # Generate VSCode config (local env)
-python odoo-service/scripts/ide_configurator.py --ide vscode --env local --config TAQAT17.conf
+python odoo-service/scripts/ide_configurator.py --ide vscode --env local --config myproject.conf
 
 # Generate PyCharm config (Docker)
 python odoo-service/scripts/ide_configurator.py --ide pycharm --env docker --project myproject

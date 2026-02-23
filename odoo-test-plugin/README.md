@@ -436,6 +436,6 @@ MIT — See plugin.json for full license information.
 
 ## Author
 
-TaqaTechno — contact@taqat-techno.com
+TaqaTechno — support@example.com
 
 https://github.com/taqat-techno/plugins/tree/main/odoo-test-plugin

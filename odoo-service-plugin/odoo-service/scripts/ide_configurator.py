@@ -6,7 +6,7 @@ Generate run configurations for PyCharm and VSCode to develop Odoo projects
 without manual setup. Supports local venv and Docker environments.
 
 Usage:
-    python ide_configurator.py --ide vscode --env local --config TAQAT17.conf
+    python ide_configurator.py --ide vscode --env local --config myproject.conf
     python ide_configurator.py --ide pycharm --env docker --project myproject
     python ide_configurator.py --ide both --env docker --project myproject
     python ide_configurator.py --gitignore-only
@@ -280,7 +280,7 @@ def generate_vscode_tasks(
             {
                 "id": "configFile",
                 "type": "promptString",
-                "description": "Config file name (e.g. TAQAT17.conf)",
+                "description": "Config file name (e.g. myproject.conf)",
                 "default": default_config
             },
             {
@@ -733,9 +733,9 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python ide_configurator.py --ide vscode --env local --config TAQAT17.conf
+  python ide_configurator.py --ide vscode --env local --config myproject.conf
   python ide_configurator.py --ide pycharm --env docker --project myproject
-  python ide_configurator.py --ide both --env local --project myproject --config TAQAT17.conf
+  python ide_configurator.py --ide both --env local --project myproject --config myproject.conf
   python ide_configurator.py --gitignore-only
   python ide_configurator.py --env-example-only --project myproject
         """
@@ -754,7 +754,7 @@ Examples:
         help="Environment type"
     )
     parser.add_argument("--project", "-p", help="Project name")
-    parser.add_argument("--config", "-c", help="Odoo config filename (e.g. TAQAT17.conf)")
+    parser.add_argument("--config", "-c", help="Odoo config filename (e.g. myproject.conf)")
     parser.add_argument("--venv", default=".venv", help="Virtual environment path")
     parser.add_argument("--output", "-o", default=".", help="Output directory")
     parser.add_argument("--gitignore-only", action="store_true", help="Only generate .gitignore")

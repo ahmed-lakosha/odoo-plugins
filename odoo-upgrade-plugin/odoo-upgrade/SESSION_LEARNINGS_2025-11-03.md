@@ -1,6 +1,6 @@
 # Odoo 19 Upgrade - Real-World Session Learnings
 **Date**: November 3, 2025
-**Project**: Relief Center (Disaster Response System)
+**Project**: Project Alpha (Disaster Response System)
 **Modules**: disaster_notification, disaster_support_packages
 **Version**: Odoo 17 → Odoo 19
 
@@ -173,12 +173,12 @@ td[@id='subtotal'] → td[@name='td_product_subtotal']
 
 **Failed Code**:
 ```xml
-<t t-out="object.company_id.name or 'Relief Center'"/>
+<t t-out="object.company_id.name or 'Project Alpha'"/>
 ```
 
 **Fixed Code**:
 ```xml
-<t t-out="(hasattr(object, 'company_id') and object.company_id and object.company_id.name) or 'Relief Center'"/>
+<t t-out="(hasattr(object, 'company_id') and object.company_id and object.company_id.name) or 'Project Alpha'"/>
 ```
 
 **Impact**: Affected 1 file with 5 instances

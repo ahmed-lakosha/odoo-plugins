@@ -617,7 +617,7 @@ python odoo_upgrade_cli.py test --verbose
 
 For issues, questions, or contributions:
 - **GitHub Issues**: https://github.com/taqat-techno/plugins/issues
-- **Email**: contact@taqat-techno.com
+- **Email**: support@example.com
 - **Documentation**: https://github.com/taqat-techno/plugins/tree/main/odoo-upgrade-plugin
 
 ---

@@ -691,7 +691,7 @@ $o-website-values-palettes: (
     'category': 'Theme/Creative',
     'author': 'TaqaTechno',
     'website': 'https://www.taqatechno.com/',
-    'support': 'info@taqatechno.com',
+    'support': 'support@example.com',
     'license': 'LGPL-3',
     'depends': [
         'website',

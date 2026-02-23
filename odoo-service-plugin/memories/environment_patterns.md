@@ -240,11 +240,11 @@ nohup python -m odoo -c conf/projectB17.conf > logs/projectB.log 2>&1 &
 
 ```
 conf/
-├── TAQAT17.conf         # Project: TAQAT, Version: 17, Port: 8069
-├── arcelia17.conf       # Project: arcelia, Version: 17, Port: 8070
-├── oksouq1717.conf      # Project: oksouq, Version: 17, Port: 8071
-├── ittihadclub17.conf   # Project: ittihadclub, Version: 17, Port: 8072
-└── relief_center17.conf # Project: relief_center, Version: 17, Port: 8073
+├── myproject.conf         # Project: TAQAT, Version: 17, Port: 8069
+├── mydb.conf       # Project: arcelia, Version: 17, Port: 8070
+├── mydb17.conf      # Project: oksouq, Version: 17, Port: 8071
+├── mydb.conf   # Project: project-eta, Version: 17, Port: 8072
+└── mydb.conf # Project: relief_center, Version: 17, Port: 8073
 ```
 
 ---
@@ -279,7 +279,7 @@ taskkill /IM python.exe /F
 # or: choco install nssm
 
 # Install Odoo as Windows service
-nssm install OdooTAQAT "C:\odoo\odoo17\.venv\Scripts\python.exe" "-m odoo -c C:\odoo\odoo17\conf\TAQAT17.conf"
+nssm install OdooTAQAT "C:\odoo\odoo17\.venv\Scripts\python.exe" "-m odoo -c C:\odoo\odoo17\conf\myproject.conf"
 nssm set OdooTAQAT AppDirectory "C:\odoo\odoo17"
 nssm set OdooTAQAT AppEnvironmentExtra PYTHONPATH=C:\odoo\odoo17
 nssm start OdooTAQAT
@@ -319,7 +319,7 @@ PermissionsStartOnly=true
 User=odoo
 Group=odoo
 WorkingDirectory=/opt/odoo17
-ExecStart=/opt/odoo17/.venv/bin/python -m odoo -c /opt/odoo17/conf/TAQAT17.conf
+ExecStart=/opt/odoo17/.venv/bin/python -m odoo -c /opt/odoo17/conf/myproject.conf
 StandardOutput=journal+console
 Restart=on-failure
 RestartSec=5
@@ -358,7 +358,7 @@ sudo systemctl restart odoo17
         <string>-m</string>
         <string>odoo</string>
         <string>-c</string>
-        <string>/opt/odoo17/conf/TAQAT17.conf</string>
+        <string>/opt/odoo17/conf/myproject.conf</string>
     </array>
     <key>WorkingDirectory</key>
     <string>/opt/odoo17</string>

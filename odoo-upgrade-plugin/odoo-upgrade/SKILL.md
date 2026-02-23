@@ -67,7 +67,7 @@ Activate this skill when:
     'category': 'Category Name',
     'author': 'TaqaTechno',            # REQUIRED for Odoo 19
     'website': 'https://www.taqatechno.com/',  # REQUIRED
-    'support': 'info@taqatechno.com',  # REQUIRED
+    'support': 'support@example.com',  # REQUIRED
     'license': 'LGPL-3',               # REQUIRED
     'contributors': [                   # Names only, NO emails
         'Developer Name',

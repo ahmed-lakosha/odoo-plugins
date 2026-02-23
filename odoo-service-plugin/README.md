@@ -56,9 +56,9 @@ The `odoo-service` plugin gives Claude Code deep knowledge of Odoo server operat
 ### Scenario 1: Start Existing Local Project
 
 ```bash
-# Tell Claude: "start odoo with TAQAT17.conf in dev mode"
+# Tell Claude: "start odoo with myproject.conf in dev mode"
 # Claude runs:
-python -m odoo -c conf/TAQAT17.conf --dev=all
+python -m odoo -c conf/myproject.conf --dev=all
 ```
 
 ### Scenario 2: New Project from Scratch
@@ -94,16 +94,16 @@ python -m odoo -c conf/TAQAT17.conf --dev=all
 
 ```bash
 # Backup
-/odoo-db backup --db taqat17
+/odoo-db backup --db mydb
 
 # Restore to new database
-/odoo-db restore --file backups/taqat17_20240101.dump --db taqat17_restored
+/odoo-db restore --file backups/mydb_20240101.dump --db mydb_restored
 
 # Reset admin password
-/odoo-db reset-admin --db taqat17 --password newpassword
+/odoo-db reset-admin --db mydb --password newpassword
 
 # Backup from Docker container
-/odoo-db backup --docker odoo_db --db taqat17
+/odoo-db backup --docker odoo_db --db mydb
 ```
 
 ---
@@ -127,7 +127,7 @@ Displays overview of all commands, environment detection status, and quick-start
 | Example | Action |
 |---------|--------|
 | `/odoo-start` | Interactive config selection |
-| `/odoo-start --config TAQAT17.conf` | Start with specific config |
+| `/odoo-start --config myproject.conf` | Start with specific config |
 | `/odoo-start --dev` | Start with `--dev=all` |
 | `/odoo-start --docker` | `docker-compose up -d` |
 | `/odoo-start --workers 4` | Production mode (4 workers) |
@@ -203,7 +203,7 @@ Creates: venv, conf file, log/data/backup dirs, .gitignore.
 
 | Example | Action |
 |---------|--------|
-| `/odoo-ide --ide vscode --env local --config TAQAT17.conf` | VSCode local config |
+| `/odoo-ide --ide vscode --env local --config myproject.conf` | VSCode local config |
 | `/odoo-ide --ide pycharm --env docker --project myproject` | PyCharm Docker config |
 | `/odoo-ide --ide both --env local` | Both IDEs |
 | `/odoo-ide --gitignore-only` | Generate .gitignore only |
@@ -256,12 +256,12 @@ All scripts in `odoo-service/scripts/` are standalone and work without Odoo inst
 ### server_manager.py
 
 ```bash
-python server_manager.py start --config conf/TAQAT17.conf --dev
+python server_manager.py start --config conf/myproject.conf --dev
 python server_manager.py stop --port 8069
 python server_manager.py status
-python server_manager.py restart --config conf/TAQAT17.conf
-python server_manager.py install --config conf/TAQAT17.conf --db mydb --module my_module
-python server_manager.py update --config conf/TAQAT17.conf --db mydb --module my_module
+python server_manager.py restart --config conf/myproject.conf
+python server_manager.py install --config conf/myproject.conf --db mydb --module my_module
+python server_manager.py update --config conf/myproject.conf --db mydb --module my_module
 python server_manager.py logs --file logs/odoo.log --lines 50
 python server_manager.py processes
 ```
@@ -305,7 +305,7 @@ python docker_manager.py update --db mydb --module my_module
 ### ide_configurator.py
 
 ```bash
-python ide_configurator.py --ide vscode --env local --config TAQAT17.conf
+python ide_configurator.py --ide vscode --env local --config myproject.conf
 python ide_configurator.py --ide pycharm --env docker --project myproject
 python ide_configurator.py --ide both --env local --project myproject
 python ide_configurator.py --gitignore-only
@@ -341,7 +341,7 @@ Claude responds to natural language requests using this plugin:
 | You say... | Plugin action |
 |------------|--------------|
 | "start odoo" | `/odoo-start` (interactive) |
-| "run odoo with TAQAT17.conf" | `/odoo-start --config TAQAT17.conf` |
+| "run odoo with myproject.conf" | `/odoo-start --config myproject.conf` |
 | "stop odoo" | `/odoo-stop` |
 | "kill the server" | `/odoo-stop` |
 | "set up a new odoo 17 project" | `/odoo-init --version 17` |
@@ -417,7 +417,7 @@ healthcheck:
 This plugin is maintained by TaqaTechno. To report issues or suggest improvements:
 
 1. Submit issues via GitHub: https://github.com/taqat-techno/plugins/issues
-2. Contact: contact@taqat-techno.com
+2. Contact: support@example.com
 
 ---
 
@@ -436,4 +436,4 @@ MIT License — See LICENSE file for details.
 ---
 
 *Built by TaqaTechno — Odoo development specialists since 2019*
-*Website: https://taqat-techno.com | Email: contact@taqat-techno.com*
+*Website: https://taqat-techno.com | Email: support@example.com*

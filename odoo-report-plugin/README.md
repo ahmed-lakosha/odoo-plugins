@@ -137,7 +137,7 @@ The plugin handles automatic migration between versions:
 
 **TaqaTechno**
 - Website: https://www.taqatechno.com/
-- Email: info@taqatechno.com
+- Email: support@example.com
 
 ## License
 

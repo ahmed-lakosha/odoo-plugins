@@ -806,28 +806,28 @@ access_theme_website_{self.model_name}_public,{theme_model_name}.public,model_th
     <!-- Create theme.ir.ui.view records that reference the templates -->
     <record id="theme_view_''' + self.model_name + '''_professional" model="theme.ir.ui.view">
         <field name="name">''' + self.model_name.title() + ''' Professional View</field>
-        <field name="key">theme_pearlpixels.''' + self.model_name + '''_professional</field>
+        <field name="key">theme_my_theme.''' + self.model_name + '''_professional</field>
         <field name="type">qweb</field>
         <field name="arch" type="xml">
-            <t t-call="theme_pearlpixels.theme_''' + self.model_name + '''_view_professional"/>
+            <t t-call="theme_my_theme.theme_''' + self.model_name + '''_view_professional"/>
         </field>
     </record>
 
     <record id="theme_view_''' + self.model_name + '''_creative" model="theme.ir.ui.view">
         <field name="name">''' + self.model_name.title() + ''' Creative View</field>
-        <field name="key">theme_pearlpixels.''' + self.model_name + '''_creative</field>
+        <field name="key">theme_my_theme.''' + self.model_name + '''_creative</field>
         <field name="type">qweb</field>
         <field name="arch" type="xml">
-            <t t-call="theme_pearlpixels.theme_''' + self.model_name + '''_view_creative"/>
+            <t t-call="theme_my_theme.theme_''' + self.model_name + '''_view_creative"/>
         </field>
     </record>
 
     <record id="theme_view_''' + self.model_name + '''_minimal" model="theme.ir.ui.view">
         <field name="name">''' + self.model_name.title() + ''' Minimal View</field>
-        <field name="key">theme_pearlpixels.''' + self.model_name + '''_minimal</field>
+        <field name="key">theme_my_theme.''' + self.model_name + '''_minimal</field>
         <field name="type">qweb</field>
         <field name="arch" type="xml">
-            <t t-call="theme_pearlpixels.theme_''' + self.model_name + '''_view_minimal"/>
+            <t t-call="theme_my_theme.theme_''' + self.model_name + '''_view_minimal"/>
         </field>
     </record>
 
@@ -969,7 +969,7 @@ def main():
     if len(sys.argv) < 3:
         print("❌ Error: Missing arguments")
         print("\nUsage: theme_web_rec <website_module_path> <theme_module_path> [model_name]")
-        print("Example: theme_web_rec projects/pearlpixels/website_portfolio projects/pearlpixels/theme_pearlpixels")
+        print("Example: theme_web_rec projects/my_theme/website_portfolio projects/my_theme/theme_my_theme")
         return 1
 
     website_path = Path(sys.argv[1])
@@ -1043,7 +1043,7 @@ def main():
         print(f"1. Update the website module:")
         print(f"   python -m odoo -c conf/[config].conf -d [db] -u website_{model_name}")
         print(f"\n2. Install/update the theme:")
-        print(f"   python -m odoo -c conf/[config].conf -d [db] -i theme_pearlpixels")
+        print(f"   python -m odoo -c conf/[config].conf -d [db] -i theme_my_theme")
         print(f"\n3. Verify in Admin:")
         print(f"   • Go to Website > Configuration > {model_name.title()}s")
         print(f"   • Check that records have website_id assigned")

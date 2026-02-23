@@ -6,13 +6,13 @@ Start, stop, restart Odoo processes. Works on Windows, Linux, and macOS.
 Supports local venv, bare Python, and Docker environments.
 
 Usage:
-    python server_manager.py start --config conf/TAQAT17.conf [--dev] [--workers 4]
+    python server_manager.py start --config conf/myproject.conf [--dev] [--workers 4]
     python server_manager.py stop [--port 8069]
     python server_manager.py status [--port 8069]
-    python server_manager.py restart --config conf/TAQAT17.conf
-    python server_manager.py install --config conf/TAQAT17.conf --db mydb --module my_module
-    python server_manager.py update --config conf/TAQAT17.conf --db mydb --module my_module
-    python server_manager.py refresh --config conf/TAQAT17.conf --db mydb
+    python server_manager.py restart --config conf/myproject.conf
+    python server_manager.py install --config conf/myproject.conf --db mydb --module my_module
+    python server_manager.py update --config conf/myproject.conf --db mydb --module my_module
+    python server_manager.py refresh --config conf/myproject.conf --db mydb
     python server_manager.py logs [--file logs/odoo.log] [--lines 50]
     python server_manager.py processes
 """
@@ -530,12 +530,12 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python server_manager.py start --config conf/TAQAT17.conf --dev
+  python server_manager.py start --config conf/myproject.conf --dev
   python server_manager.py stop --port 8069
   python server_manager.py status
-  python server_manager.py restart --config conf/TAQAT17.conf
-  python server_manager.py install --config conf/TAQAT17.conf --db mydb --module my_module
-  python server_manager.py update --config conf/TAQAT17.conf --db mydb --module my_module
+  python server_manager.py restart --config conf/myproject.conf
+  python server_manager.py install --config conf/myproject.conf --db mydb --module my_module
+  python server_manager.py update --config conf/myproject.conf --db mydb --module my_module
   python server_manager.py logs --file logs/odoo.log --lines 50
   python server_manager.py processes
         """

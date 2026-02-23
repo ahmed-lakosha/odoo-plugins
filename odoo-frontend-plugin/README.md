@@ -385,7 +385,7 @@ We welcome contributions! Please:
 
 - **Repository**: https://github.com/taqat-techno/plugins
 - **Issues**: https://github.com/taqat-techno/plugins/issues
-- **Contact**: contact@taqat-techno.com
+- **Contact**: support@example.com
 
 ## License
 

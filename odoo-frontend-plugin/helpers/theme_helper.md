@@ -61,7 +61,7 @@ manifest = {
     'summary': f'Custom theme for {client_name}',
     'author': 'TaqaTechno',
     'website': 'https://www.taqatechno.com/',
-    'support': 'info@taqatechno.com',
+    'support': 'support@example.com',
     'license': 'LGPL-3',
     'depends': ['website'],
     'data': data_files,

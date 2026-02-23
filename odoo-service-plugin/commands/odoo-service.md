@@ -40,16 +40,16 @@ Override with flags: `--docker`, `--venv`, `--env local`
 
 ```bash
 # Start in dev mode
-/odoo-start --config TAQAT17.conf --dev
+/odoo-start --config myproject.conf --dev
 
 # Or type naturally:
-"start odoo with TAQAT17.conf in dev mode"
+"start odoo with myproject.conf in dev mode"
 
 # Stop server
 /odoo-stop
 
 # Backup database
-/odoo-db backup --db taqat17
+/odoo-db backup --db mydb
 ```
 
 ### Scenario 2: New Project from Scratch

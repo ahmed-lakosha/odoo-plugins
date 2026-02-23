@@ -4,7 +4,7 @@
   "description": "Advanced Odoo frontend development with Figma browser automation for design extraction, /create-theme command, PWA support, TypeScript, testing frameworks, and performance optimization. Features Chrome MCP integration, automatic color/typography extraction, $o-website-values-palettes reference, theme mirror model architecture, publicWidget patterns, and MCP integration for Odoo 14-19.",
   "author": {
     "name": "TAQAT Techno",
-    "email": "contact@taqat-techno.com",
+    "email": "support@example.com",
     "url": "https://github.com/taqat-techno"
   },
   "homepage": "https://github.com/taqat-techno/plugins/tree/main/odoo-frontend-plugin",

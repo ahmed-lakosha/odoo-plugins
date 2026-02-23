@@ -547,7 +547,7 @@ msgstr "تم العثور على %s سجل في %d ملفات"
 
 This plugin is maintained by TaqaTechno. For issues or contributions:
 
-- Email: contact@taqat-techno.com
+- Email: support@example.com
 - The plugin supports Odoo 14 through 19
 - Test scripts with Python 3.8+ before submitting changes
 - All contributions must maintain Arabic/RTL support as a first-class feature

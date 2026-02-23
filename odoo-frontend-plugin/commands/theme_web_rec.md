@@ -27,7 +27,7 @@ This command helps developers create proper theme mirror models for Odoo website
 
 ### Basic Usage
 - **Command**: `/theme_web_rec <website_module_path> <theme_module_path>`
-- **Example**: `/theme_web_rec projects/pearlpixels/website_portfolio projects/pearlpixels/theme_pearlpixels`
+- **Example**: `/theme_web_rec projects/my_theme/website_portfolio projects/my_theme/theme_my_theme`
 
 ### With Model Name (if auto-detection fails)
 - **Command**: `/theme_web_rec <website_module_path> <theme_module_path> <model_name>`

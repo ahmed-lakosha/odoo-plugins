@@ -37,21 +37,21 @@ Scans `conf/` directory, lists available .conf files, prompts user to select one
 
 ### Specific Config File
 ```
-/odoo-start --config TAQAT17.conf
+/odoo-start --config myproject.conf
 ```
 Runs:
 ```bash
-python -m odoo -c conf/TAQAT17.conf
+python -m odoo -c conf/myproject.conf
 ```
 
 ### Development Mode
 ```
 /odoo-start --dev
-/odoo-start --config TAQAT17.conf --dev
+/odoo-start --config myproject.conf --dev
 ```
 Runs:
 ```bash
-python -m odoo -c conf/TAQAT17.conf --dev=all
+python -m odoo -c conf/myproject.conf --dev=all
 ```
 Enables:
 - Auto-reload on file changes
@@ -61,11 +61,11 @@ Enables:
 
 ### Production Mode (Workers)
 ```
-/odoo-start --config TAQAT17.conf --workers 4
+/odoo-start --config myproject.conf --workers 4
 ```
 Runs:
 ```bash
-python -m odoo -c conf/TAQAT17.conf --workers=4
+python -m odoo -c conf/myproject.conf --workers=4
 ```
 
 ### Force Docker Mode
@@ -79,7 +79,7 @@ docker-compose up -d
 
 ### Background Process
 ```
-/odoo-start --config TAQAT17.conf --detach
+/odoo-start --config myproject.conf --detach
 ```
 
 ## Natural Language Triggers
@@ -100,7 +100,7 @@ Uses `odoo-service/scripts/server_manager.py`:
 from odoo-service.scripts.server_manager import start_local
 
 start_local(
-    config_path="conf/TAQAT17.conf",
+    config_path="conf/myproject.conf",
     dev=True,
     workers=0,
     database=None,
