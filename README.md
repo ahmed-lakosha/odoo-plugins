@@ -1,6 +1,6 @@
 # ☁️ Cloud Market — Odoo Plugins for Claude Code
 
-> **6 professional Odoo development plugins** for [Claude Code](https://claude.ai/code) — covering the full Odoo development lifecycle from upgrade migrations to testing, security, and internationalization.
+> **7 professional Odoo development plugins** for [Claude Code](https://claude.ai/code) — covering the full Odoo development lifecycle from upgrade migrations to testing, security, internationalization, and server lifecycle management.
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin%20Marketplace-blue)](https://claude.ai/code)
 [![Odoo Versions](https://img.shields.io/badge/Odoo-14%20→%2019-purple)](https://www.odoo.com)
@@ -11,7 +11,7 @@
 ## Quick Install
 
 ```bash
-# Install all 6 Odoo plugins at once
+# Install all 7 Odoo plugins at once
 claude mcp add cloud-market https://github.com/ahmed-lakosha/odoo-upgrade-skill
 ```
 
@@ -90,6 +90,18 @@ Commands: `/odoo-i18n`, `/i18n-extract`, `/i18n-missing`, `/i18n-validate`, `/i1
 
 ---
 
+### ⚙️ odoo-service
+**Complete Odoo server lifecycle manager — run, deploy, initialize across any environment and IDE**
+
+Start/stop Odoo with auto-detection of local venv or Docker, initialize new environments
+(venv + PostgreSQL + .conf generation), manage databases (pg_dump backup/restore, create/drop,
+admin reset), orchestrate Docker (build, up, down, logs, shell, Dockerfile generation for
+all versions 14-19), and generate IDE configurations for PyCharm and VSCode automatically.
+
+Commands: `/odoo-service`, `/odoo-start`, `/odoo-stop`, `/odoo-init`, `/odoo-db`, `/odoo-docker`, `/odoo-ide`
+
+---
+
 ## Odoo Version Support
 
 | Plugin | 14 | 15 | 16 | 17 | 18 | 19 |
@@ -100,6 +112,7 @@ Commands: `/odoo-i18n`, `/i18n-extract`, `/i18n-missing`, `/i18n-validate`, `/i1
 | odoo-test | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | odoo-security | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | odoo-i18n | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| odoo-service | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -108,13 +121,14 @@ Commands: `/odoo-i18n`, `/i18n-extract`, `/i18n-missing`, `/i18n-validate`, `/i1
 ```
 cloud-market/
 ├── .claude-plugin/
-│   └── marketplace.json          ← Plugin registry
+│   └── marketplace.json          ← Plugin registry (v1.1.0, 7 plugins)
 ├── odoo-upgrade-plugin/          ← Upgrade migration toolkit
 ├── odoo-frontend-plugin/         ← Theme & frontend development
 ├── odoo-report-plugin/           ← QWeb reports & email templates
 ├── odoo-test-plugin/             ← Testing & coverage
 ├── odoo-security-plugin/         ← Security audit
 ├── odoo-i18n-plugin/             ← Internationalization
+├── odoo-service-plugin/          ← Server lifecycle & deployment
 ├── validate_plugin.py            ← Plugin validation utility
 ├── CLAUDE_CODE_PLUGIN_DEVELOPMENT_GUIDE.md
 └── LICENSE
