@@ -1,236 +1,133 @@
-![GitHub release](https://img.shields.io/github/v/release/ahmed-lakosha/odoo-upgrade-skill)
-![GitHub stars](https://img.shields.io/github/stars/ahmed-lakosha/odoo-upgrade-skill)
-![License](https://img.shields.io/badge/license-LGPL--3.0-blue)
+# ☁️ Cloud Market — Odoo Plugins for Claude Code
 
-# Odoo Upgrade Skill for Claude Code
+> **6 professional Odoo development plugins** for [Claude Code](https://claude.ai/code) — covering the full Odoo development lifecycle from upgrade migrations to testing, security, and internationalization.
 
-A comprehensive Claude Code skill for automating Odoo ERP module upgrades between versions 14-19, with special focus on the breaking changes in Odoo 19.
-
-## 🚀 Features
-
-- **Automated Pattern Detection**: Identifies and fixes common migration issues
-- **Multi-Version Support**: Handles migrations from Odoo 14 through 19
-- **RPC Service Migration**: Automatically converts frontend RPC calls for Odoo 19
-- **XML Transformation**: Fixes view definitions, kanban templates, and search views
-- **Python API Updates**: Handles import changes and deprecated methods
-- **Theme Migration**: Updates SCSS variables and font configurations
-- **Comprehensive Error Catalog**: Documents 25+ common errors with solutions
-- **Helper Scripts**: Python scripts for batch processing
-
-## 📦 Installation
-
-### As a Claude Code Skill
-
-1. Copy the skill to your Claude Code skills directory:
-```bash
-# For project-specific use
-cp -r C:\tmp\plugins\odoo-upgrade-skill .claude\skills\
-
-# For global use
-cp -r C:\tmp\plugins\odoo-upgrade-skill %USERPROFILE%\.claude\skills\
-```
-
-2. The skill will be automatically available when you ask Claude to upgrade Odoo modules.
-
-### As a Standalone Tool
-
-1. Clone or copy the repository:
-```bash
-git clone <repository-url> odoo-upgrade-skill
-cd odoo-upgrade-skill
-```
-
-2. Install Python dependencies:
-```bash
-pip install lxml
-```
-
-## 🎯 Quick Start
-
-### Using with Claude Code
-
-Simply ask Claude:
-- "Upgrade my Odoo module from version 17 to 19"
-- "Fix RPC service errors in my Odoo 19 module"
-- "Migrate my theme to Odoo 19"
-
-Claude will automatically use this skill when detecting Odoo upgrade tasks.
-
-### Using Helper Scripts Standalone
-
-#### Fix RPC Service Issues
-```bash
-python scripts/fix_rpc_service.py path/to/module
-```
-
-#### Update Manifests
-```bash
-python scripts/upgrade_manifest.py path/to/module --target 19
-```
-
-#### Process Entire Project
-```bash
-python scripts/upgrade_manifest.py path/to/project --recursive --target 19
-python scripts/fix_rpc_service.py path/to/project
-```
-
-## 📋 What Gets Fixed
-
-### JavaScript/Frontend (Odoo 19)
-- ✅ RPC service removal and replacement with fetch
-- ✅ Module annotations (`/** @odoo-module **/`)
-- ✅ Service registration changes
-- ✅ Import path updates
-
-### XML Views
-- ✅ `<tree>` → `<list>` conversion
-- ✅ Remove `edit="1"` attributes
-- ✅ Fix search view `<group>` tags
-- ✅ Replace `active_id` with `id`
-- ✅ Kanban template name changes (`kanban-box` → `card`)
-- ✅ Remove `js_class` attributes
-- ✅ Remove `numbercall` from cron jobs
-
-### Python Code
-- ✅ `slug` function compatibility
-- ✅ `url_for` import changes
-- ✅ External dependency declarations
-- ✅ API decorator updates
-
-### Themes/SCSS
-- ✅ Variable naming conventions
-- ✅ Font configuration with `map-merge`
-- ✅ Color palette menu/footer assignments
-- ✅ Unit conversions (px → rem)
-
-### Manifests
-- ✅ Version format (e.g., `19.0.1.0.0`)
-- ✅ Missing license key
-- ✅ External dependencies
-- ✅ Auto-detect Python packages
-
-## 🔍 Example: Relief Center Migration
-
-This skill was developed while migrating a complex humanitarian aid system from Odoo 17 to 19:
-
-**Project Stats:**
-- 5 interdependent modules
-- 115 files analyzed
-- 32 files modified
-- 450+ lines changed
-- 10 RPC calls migrated
-- 7 JavaScript components fixed
-
-**Key Issues Resolved:**
-1. Frontend RPC service unavailable
-2. Kanban views broken
-3. Search filters not working
-4. Theme colors not applying
-5. MapTiler integration failing
-
-## 📚 Documentation Structure
-
-```
-odoo-upgrade-skill/
-├── SKILL.md                    # Main skill definition
-├── patterns/
-│   ├── common_patterns.md      # Universal patterns
-│   └── odoo18_to_19.md        # Version-specific changes
-├── fixes/
-│   ├── xml_fixes.md            # XML transformation templates
-│   └── javascript_fixes.md     # JS/OWL migration templates
-├── scripts/
-│   ├── upgrade_manifest.py     # Manifest updater
-│   └── fix_rpc_service.py      # RPC service fixer
-├── reference/
-│   └── error_catalog.md        # 25+ common errors
-└── README.md                    # This file
-```
-
-## 🛠️ Manual Intervention Required
-
-Some issues require manual review:
-- Complex business logic changes
-- Custom widget rewrites
-- Third-party module compatibility
-- Database schema migrations
-- Report template updates
-
-## 🧪 Testing After Upgrade
-
-Always test after upgrading:
-
-```bash
-# Install upgraded module
-python -m odoo -d test_db -i module_name --stop-after-init
-
-# Run with development mode
-python -m odoo -d test_db --dev=xml,css,js
-
-# Run tests
-python -m odoo -d test_db --test-enable -i module_name
-```
-
-## 🔄 Version Compatibility
-
-| From Version | To Version | Difficulty | Major Changes |
-|--------------|------------|------------|---------------|
-| 17 → 18 | 18 | Low | Minor API changes |
-| 18 → 19 | 19 | **High** | RPC removal, view changes |
-| 17 → 19 | 19 | **Very High** | Complete frontend rewrite |
-| 16 → 17 | 17 | Medium | OWL framework adoption |
-
-## 🚨 Common Pitfalls
-
-1. **Not backing up** before upgrade
-2. **Upgrading all modules at once** instead of incrementally
-3. **Ignoring external dependencies** in manifests
-4. **Not clearing asset cache** after changes
-5. **Missing theme color assignments** (menu, footer)
-
-## 🤝 Contributing
-
-To improve this skill:
-
-1. Document new error patterns
-2. Add fix templates for new issues
-3. Update version-specific guides
-4. Share migration experiences
-
-## 📄 License
-
-LGPL-3.0 (Compatible with Odoo licensing)
-
-## 🙏 Acknowledgments
-
-Developed during the successful migration of the Relief Center humanitarian aid system, processing real-world production code with complex interdependencies.
-
-## 📞 Support
-
-For issues or improvements:
-- Create an issue in the repository
-- Submit pull requests with new patterns
-- Share your migration experiences
-
-## 🎯 Pro Tips
-
-1. **Always upgrade in a test environment first**
-2. **Use version control** - commit before and after each major change
-3. **Test incrementally** - one module at a time
-4. **Document custom changes** that the skill can't handle
-5. **Keep the skill updated** as new Odoo versions are released
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin%20Marketplace-blue)](https://claude.ai/code)
+[![Odoo Versions](https://img.shields.io/badge/Odoo-14%20→%2019-purple)](https://www.odoo.com)
+[![License](https://img.shields.io/badge/License-LGPL--3-green)](./LICENSE)
 
 ---
 
-*Built with real-world experience from production Odoo migrations*## 🚀 Quick Install
+## Quick Install
 
 ```bash
-# Clone the skill
-git clone https://github.com/ahmed-lakosha/odoo-upgrade-skill.git
-
-# Copy to Claude skills directory (Windows)
-xcopy /E /I odoo-upgrade-skill %USERPROFILE%\.claude\skills\odoo-upgrade-skill
-
-# Or for Linux/Mac
-cp -r odoo-upgrade-skill ~/.claude/skills/
+# Install all 6 Odoo plugins at once
+claude mcp add cloud-market https://github.com/ahmed-lakosha/odoo-upgrade-skill
 ```
+
+Or install individual plugins from the marketplace by referencing this repo.
+
+---
+
+## Plugins
+
+### 🔄 odoo-upgrade
+**Comprehensive Odoo module upgrade assistant for migrating between versions (14-19)**
+
+Handles XML view transformations (`<tree>`→`<list>`, `attrs`→inline), Python API changes,
+OWL 1.x→2.0 lifecycle hooks, controller type migrations, SCSS variable restructuring,
+and RPC service replacements. Includes 150+ patterns and 75+ auto-fixes.
+
+Commands: `/odoo-upgrade`
+
+---
+
+### 🎨 odoo-frontend
+**Odoo website theme development with MCP integration and Bootstrap version management**
+
+Full publicWidget framework, dark mode toggle patterns, RTL/LTR switcher, Figma→Odoo
+conversion, `$o-website-values-palettes` reference, theme mirror model architecture,
+and OWL 2.0 component patterns for Odoo 18+.
+
+Commands: `/odoo-frontend`, `/create-theme`, `/theme_web_rec`
+
+---
+
+### 📄 odoo-report
+**Professional Odoo QWeb reports & email templates toolkit across Odoo 14-19**
+
+Create, debug, migrate, and validate QWeb PDF reports and email templates. Includes
+QR code/barcode patterns (ZATCA/Saudi), Report Wizard templates, bilingual Arabic/English
+layouts, and Odoo 19 company branding migration guide.
+
+Commands: `/odoo-report`, `/create-qweb-report`, `/create-email-template`, `/debug-template`,
+`/migrate-template`, `/validate-template`, `/fix-template`, `/preview-template`
+
+---
+
+### 🧪 odoo-test
+**Odoo testing toolkit — test generation, mock data, coverage analysis (v14-19)**
+
+Generate `TransactionCase` test skeletons from model definitions using AST parsing,
+run tests with colored output and JUnit XML reports, create realistic mock data by
+field type, and analyze test coverage gaps with HTML/JSON reports.
+
+Commands: `/odoo-test`, `/test-generate`, `/test-run`, `/test-coverage`, `/test-data`
+
+---
+
+### 🔒 odoo-security
+**Odoo security audit — access rules, route auth, sudo() analysis with risk scoring**
+
+Audit `ir.model.access.csv` completeness, verify `@http.route auth=` parameters,
+analyze every `sudo()` call with context classification (CRITICAL/HIGH/MEDIUM/LOW),
+and generate a unified risk score (0-100) with remediation guidance. CI-ready with
+exit codes.
+
+Commands: `/odoo-security`, `/security-audit`, `/check-access`, `/find-sudo`, `/check-routes`
+
+---
+
+### 🌐 odoo-i18n
+**Odoo i18n toolkit — extract, validate, report missing translations, Arabic/RTL (v14-19)**
+
+Extract translatable strings from Python/XML/JS/QWeb to `.pot`/`.po` files using AST
+parsing, validate translation completeness with Arabic plural form support (nplurals=6),
+find missing translations by language, and merge/clean/convert `.po` files. Full
+Arabic/RTL layout patterns included.
+
+Commands: `/odoo-i18n`, `/i18n-extract`, `/i18n-missing`, `/i18n-validate`, `/i18n-export`
+
+---
+
+## Odoo Version Support
+
+| Plugin | 14 | 15 | 16 | 17 | 18 | 19 |
+|--------|----|----|----|----|----|----|
+| odoo-upgrade | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| odoo-frontend | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| odoo-report | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| odoo-test | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| odoo-security | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| odoo-i18n | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+---
+
+## Repository Structure
+
+```
+cloud-market/
+├── .claude-plugin/
+│   └── marketplace.json          ← Plugin registry
+├── odoo-upgrade-plugin/          ← Upgrade migration toolkit
+├── odoo-frontend-plugin/         ← Theme & frontend development
+├── odoo-report-plugin/           ← QWeb reports & email templates
+├── odoo-test-plugin/             ← Testing & coverage
+├── odoo-security-plugin/         ← Security audit
+├── odoo-i18n-plugin/             ← Internationalization
+├── validate_plugin.py            ← Plugin validation utility
+├── CLAUDE_CODE_PLUGIN_DEVELOPMENT_GUIDE.md
+└── LICENSE
+```
+
+---
+
+## Author
+
+**ahmed-lakosha** — [ahmed.lakosha94@gmail.com](mailto:ahmed.lakosha94@gmail.com)
+
+---
+
+## License
+
+[LGPL-3](./LICENSE)

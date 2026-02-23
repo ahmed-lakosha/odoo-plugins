@@ -1,0 +1,115 @@
+{
+  "base_font_size": 16,
+  "base_unit": "px",
+  "heading_hierarchy": {
+    "h1": {
+      "default_size": 64,
+      "multiplier": 4.0,
+      "description": "Hero/Page titles",
+      "typical_range": [48, 72]
+    },
+    "h2": {
+      "default_size": 48,
+      "multiplier": 3.0,
+      "description": "Section headers",
+      "typical_range": [36, 56]
+    },
+    "h3": {
+      "default_size": 32,
+      "multiplier": 2.0,
+      "description": "Sub-section headers",
+      "typical_range": [24, 40]
+    },
+    "h4": {
+      "default_size": 24,
+      "multiplier": 1.5,
+      "description": "Card headers",
+      "typical_range": [20, 28]
+    },
+    "h5": {
+      "default_size": 20,
+      "multiplier": 1.25,
+      "description": "Small headers",
+      "typical_range": [18, 24]
+    },
+    "h6": {
+      "default_size": 16,
+      "multiplier": 1.0,
+      "description": "Captions (FIXED BASE)",
+      "fixed": true
+    }
+  },
+  "display_hierarchy": {
+    "description": "Extended hierarchy for designs with >6 heading levels",
+    "display-1": {
+      "default_size": 96,
+      "multiplier": 6.0,
+      "description": "Extra large hero"
+    },
+    "display-2": {
+      "default_size": 88,
+      "multiplier": 5.5,
+      "description": "Large hero"
+    },
+    "display-3": {
+      "default_size": 80,
+      "multiplier": 5.0,
+      "description": "Hero"
+    },
+    "display-4": {
+      "default_size": 72,
+      "multiplier": 4.5,
+      "description": "Sub-hero"
+    },
+    "display-5": {
+      "default_size": 64,
+      "multiplier": 4.0,
+      "description": "Large heading (same as H1)"
+    },
+    "display-6": {
+      "default_size": 56,
+      "multiplier": 3.5,
+      "description": "Medium heading (between H1 and H2)"
+    }
+  },
+  "font_weights": {
+    "normal": 400,
+    "medium": 500,
+    "semibold": 600,
+    "bold": 700
+  },
+  "line_heights": {
+    "headings": 1.2,
+    "body": 1.6,
+    "tight": 1.1,
+    "loose": 1.8
+  },
+  "popular_fonts": {
+    "sans_serif": [
+      "Inter",
+      "Poppins",
+      "Roboto",
+      "Open Sans",
+      "Montserrat",
+      "Nunito",
+      "Lato",
+      "Source Sans Pro",
+      "IBM Plex Sans",
+      "DM Sans"
+    ],
+    "serif": [
+      "Playfair Display",
+      "Merriweather",
+      "Lora",
+      "Crimson Text",
+      "IBM Plex Serif"
+    ],
+    "monospace": [
+      "JetBrains Mono",
+      "Fira Code",
+      "Source Code Pro",
+      "IBM Plex Mono"
+    ]
+  },
+  "google_fonts_base_url": "https://fonts.googleapis.com/css2"
+}

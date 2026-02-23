@@ -1,0 +1,147 @@
+{
+  "version": "1.0.0",
+  "description": "Odoo i18n plugin hooks — automatically triggered suggestions based on file events",
+  "hooks": [
+    {
+      "id": "po_file_created",
+      "event": "file_created",
+      "pattern": "**/*.po",
+      "description": "Triggered when a new .po translation file is created",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A new .po file was created. Run `/i18n-validate` to check it for syntax errors, encoding issues, and missing translations before loading into Odoo.",
+          "commands": [
+            "/i18n-validate"
+          ],
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "id": "po_file_modified",
+      "event": "file_modified",
+      "pattern": "**/*.po",
+      "description": "Triggered when an existing .po translation file is modified",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A .po file was modified. Consider:\n1. Run `/i18n-validate` to check for errors\n2. Run `/i18n-missing` to verify coverage\n3. Update the Odoo module to load new translations: `python -m odoo -c conf/myproject.conf -d mydb -u <module> --stop-after-init`",
+          "commands": [
+            "/i18n-validate",
+            "/i18n-missing"
+          ],
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "id": "pot_file_created",
+      "event": "file_created",
+      "pattern": "**/*.pot",
+      "description": "Triggered when a .pot template file is created",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A .pot template file was created. To generate language-specific .po files from this template:\n\n```bash\ncp module/i18n/module.pot module/i18n/ar.po\n# Then edit ar.po to add translations\n```\n\nOr use the extractor: `/i18n-extract`",
+          "priority": "low"
+        }
+      ]
+    },
+    {
+      "id": "python_model_created",
+      "event": "file_created",
+      "pattern": "**/models/*.py",
+      "description": "Triggered when a new Python model file is created in a models/ directory",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A new model file was created. Remember to:\n1. Use `_()` for user-facing strings (errors, messages)\n2. Use `_lt()` for class-level strings (selection values)\n3. Do NOT wrap `string=` attributes in `_()`\n4. Run `/i18n-extract` after adding strings to update .po files\n\nSee `memories/translation_patterns.md` for examples.",
+          "commands": [
+            "/i18n-extract"
+          ],
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "id": "xml_view_created",
+      "event": "file_created",
+      "pattern": "**/views/*.xml",
+      "description": "Triggered when a new XML view file is created",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A new view file was created. i18n reminders:\n1. `string=` attributes on `<field>` elements are auto-translated\n2. Text nodes in templates ARE translatable and will be extracted\n3. Use `t-translation=\"off\"` to exclude technical/code content\n4. Run `/i18n-extract` to update translation files",
+          "commands": [
+            "/i18n-extract"
+          ],
+          "priority": "low"
+        }
+      ]
+    },
+    {
+      "id": "xml_template_created",
+      "event": "file_created",
+      "pattern": "**/templates*.xml",
+      "description": "Triggered when a template XML file is created",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A template file was created. For website templates:\n1. All text nodes are auto-extracted for translation\n2. If your site serves Arabic users, check RTL layout — see `memories/rtl_patterns.md`\n3. Run `/i18n-extract` to generate/update .po files",
+          "commands": [
+            "/i18n-extract"
+          ],
+          "priority": "low"
+        }
+      ]
+    },
+    {
+      "id": "js_file_created",
+      "event": "file_created",
+      "pattern": "**/static/src/js/*.js",
+      "description": "Triggered when a new JavaScript file is created in static assets",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A new JavaScript file was created. For i18n in JavaScript:\n\n```javascript\n// Odoo 16+ / 17 / 18 / 19\nimport { _t } from \"@web/core/l10n/translation\";\nconst msg = _t(\"Hello World\");\n\n// Odoo 14 / 15 (legacy)\nimport { _t } from \"web.core\";\n```\n\nDo NOT use f-strings or string concatenation inside `_t()`.\nRun `/i18n-extract` after adding new `_t()` calls.",
+          "priority": "low"
+        }
+      ]
+    },
+    {
+      "id": "i18n_dir_missing",
+      "event": "file_created",
+      "pattern": "**/__manifest__.py",
+      "description": "Triggered when a new Odoo module manifest is created",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A new Odoo module was created. Don't forget to:\n1. Create the `i18n/` directory: `mkdir module/i18n/`\n2. Run `/i18n-extract` to generate `.pot` and `.po` files\n3. Add translation support in `__manifest__.py` (it's automatic — no special config needed)\n\nOdoo automatically reads `.po` files from the `i18n/` directory on module install/update.",
+          "commands": [
+            "/i18n-extract"
+          ],
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "id": "scss_file_created_in_theme",
+      "event": "file_created",
+      "pattern": "**/static/src/scss/*.scss",
+      "description": "Triggered when a new SCSS file is created in a theme",
+      "actions": [
+        {
+          "type": "suggest",
+          "message": "A new SCSS file was created. If this is for a multilingual theme:\n1. Use `[dir=\"rtl\"]` selectors for RTL overrides instead of separate files\n2. Prefer CSS logical properties (`margin-inline-start`) over physical (`margin-left`)\n3. Test your layout with Arabic by switching to Arabic language in Odoo\n\nSee `memories/rtl_patterns.md` for complete RTL CSS patterns.",
+          "priority": "low"
+        }
+      ]
+    }
+  ],
+  "global_settings": {
+    "max_suggestions_per_session": 10,
+    "cooldown_seconds": 300,
+    "enabled": true
+  }
+}

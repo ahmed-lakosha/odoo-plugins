@@ -1,0 +1,94 @@
+{
+  "header_templates": [
+    "default",
+    "hamburger",
+    "vertical",
+    "boxed",
+    "transparent"
+  ],
+  "footer_templates": [
+    "default",
+    "call_to_action",
+    "minimalist",
+    "highlighted",
+    "centered"
+  ],
+  "asset_bundles": {
+    "primary_variables": {
+      "bundle": "web._assets_primary_variables",
+      "files": ["static/src/scss/primary_variables.scss"],
+      "purpose": "Theme color variables (loaded first)"
+    },
+    "frontend_helpers": {
+      "bundle": "web._assets_frontend_helpers",
+      "files": ["static/src/scss/bootstrap_overridden.scss"],
+      "prepend": true,
+      "purpose": "Bootstrap overrides and helper styles"
+    },
+    "frontend": {
+      "bundle": "web.assets_frontend",
+      "files": [
+        "static/src/scss/theme.scss",
+        "static/src/js/theme.js"
+      ],
+      "purpose": "Main theme CSS/JS for public pages"
+    }
+  },
+  "required_files": [
+    "__init__.py",
+    "__manifest__.py",
+    "security/ir.model.access.csv",
+    "static/src/scss/primary_variables.scss"
+  ],
+  "recommended_files": [
+    "static/src/scss/bootstrap_overridden.scss",
+    "static/src/scss/theme.scss",
+    "static/src/js/theme.js",
+    "views/layout/header.xml",
+    "views/layout/footer.xml",
+    "views/layout/templates.xml",
+    "data/assets.xml",
+    "data/menu.xml"
+  ],
+  "page_files": {
+    "pattern": "data/pages/{page_name}_page.xml",
+    "common_pages": [
+      "home",
+      "aboutus",
+      "contactus",
+      "services",
+      "team",
+      "faq",
+      "privacy",
+      "terms"
+    ]
+  },
+  "manifest_template": {
+    "required_fields": [
+      "name",
+      "version",
+      "category",
+      "depends",
+      "data"
+    ],
+    "recommended_fields": [
+      "summary",
+      "description",
+      "author",
+      "website",
+      "support",
+      "license",
+      "images",
+      "assets"
+    ],
+    "base_depends": [
+      "website"
+    ],
+    "categories": [
+      "Theme/Creative",
+      "Theme/Business",
+      "Theme/Corporate",
+      "Theme/Services"
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "description": "Available email layout templates",
+  "layouts": {
+    "mail.mail_notification_layout": {
+      "name": "Standard Notification Layout",
+      "width": "900px",
+      "description": "Full email layout with header, content, footer, and company branding",
+      "includes": ["header", "content", "tracking", "signature", "footer", "branding"],
+      "use_cases": [
+        "Document emails (quotations, invoices)",
+        "Important notifications",
+        "Status updates with tracking"
+      ],
+      "versions": ["14", "15", "16", "17", "18", "19"]
+    },
+    "mail.mail_notification_light": {
+      "name": "Light Notification Layout",
+      "width": "590px",
+      "description": "Simplified layout for simple notifications",
+      "includes": ["content", "footer"],
+      "use_cases": [
+        "Simple notifications",
+        "Automated alerts",
+        "Digest emails"
+      ],
+      "versions": ["14", "15", "16", "17", "18", "19"]
+    },
+    "mail.mail_notification_layout_with_responsible_signature": {
+      "name": "Responsible Signature Layout",
+      "width": "900px",
+      "description": "Uses the record's user_id signature instead of current user",
+      "includes": ["header", "content", "tracking", "responsible_signature", "footer", "branding"],
+      "use_cases": [
+        "Sales emails (use salesperson's signature)",
+        "Support tickets (use assigned user's signature)"
+      ],
+      "versions": ["16", "17", "18", "19"]
+    }
+  },
+  "layout_structure": {
+    "header": {
+      "description": "Top section with action button, subtitles, record name",
+      "optional": true,
+      "controlled_by": "has_button_access, subtitles, record_name"
+    },
+    "content": {
+      "description": "Main message body",
+      "required": true,
+      "context_var": "message.body"
+    },
+    "tracking": {
+      "description": "Field change tracking display",
+      "optional": true,
+      "context_var": "tracking_values"
+    },
+    "signature": {
+      "description": "Current user's signature",
+      "optional": true,
+      "controlled_by": "email_add_signature"
+    },
+    "responsible_signature": {
+      "description": "Record's responsible user signature",
+      "optional": true,
+      "uses": "record.user_id.signature"
+    },
+    "footer": {
+      "description": "Company info, unfollow link, powered by",
+      "optional": false,
+      "context_var": "company"
+    },
+    "branding": {
+      "description": "Company colors for buttons and accents",
+      "optional": true,
+      "version": "19+",
+      "context_var": "company.email_primary_color, company.email_secondary_color"
+    }
+  },
+  "custom_layout_template": {
+    "description": "Template for creating custom layouts",
+    "example": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<odoo>\n    <template id=\"mail_notification_custom\" inherit_id=\"mail.mail_notification_layout\">\n        <!-- Customizations here -->\n    </template>\n</odoo>"
+  }
+}

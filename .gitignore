@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# ntfy-plugin user-specific files
+ntfy-plugin/ntfy/scripts/config.json
+ntfy-plugin/ntfy/scripts/notification_history.json
+ntfy-plugin/ntfy/scripts/failed_notifications.log

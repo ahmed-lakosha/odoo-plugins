@@ -1,0 +1,187 @@
+{
+  "PostToolUse": [
+    {
+      "name": "SCSS compilation reminder",
+      "matcher": "(Write|Edit).*\\.(scss|sass)$",
+      "description": "Reminds to regenerate assets after SCSS changes",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "SCSS files modified. Regenerate assets with: python -m odoo -d [DB] -u [MODULE] --stop-after-init or restart with --dev=css"
+        }
+      ]
+    },
+    {
+      "name": "JavaScript module check",
+      "matcher": "(Write|Edit).*\\.js$",
+      "description": "Checks for proper Odoo module annotation",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "^/\\*\\* @odoo-module \\*/",
+          "message": "JavaScript file should start with /** @odoo-module **/ annotation"
+        }
+      ]
+    },
+    {
+      "name": "publicWidget editableMode check",
+      "matcher": "(Write|Edit).*\\.js$",
+      "description": "Checks for editableMode handling in publicWidget",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "publicWidget\\.Widget\\.extend",
+          "message": "publicWidget detected. Remember to check 'this.editableMode' in start() for website builder compatibility."
+        }
+      ]
+    },
+    {
+      "name": "Theme installation reminder",
+      "matcher": "(Write|Edit).*/theme_.*\\.xml$",
+      "description": "Reminds to update theme after changes",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Theme data modified. Update theme with: python -m odoo -d [DB] -u [theme_module] --stop-after-init"
+        }
+      ]
+    },
+    {
+      "name": "Accessibility check",
+      "matcher": "(Write|Edit).*\\.(xml|html)$",
+      "description": "Suggests accessibility review for template changes",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Template modified. Consider running accessibility checks (alt attributes, ARIA labels, semantic HTML)."
+        }
+      ]
+    },
+    {
+      "name": "Bootstrap class validation (Odoo 16+)",
+      "matcher": "(Write|Edit).*\\.(xml|html|scss)$",
+      "description": "Checks for Bootstrap 4 classes that should be Bootstrap 5",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "\\b(ml-|mr-|pl-|pr-|text-left|text-right|float-left|float-right|font-weight-bold|sr-only)",
+          "message": "Bootstrap 4 classes detected. For Odoo 16+, use Bootstrap 5: ml→ms, mr→me, text-left→text-start, font-weight-bold→fw-bold, sr-only→visually-hidden"
+        }
+      ]
+    },
+    {
+      "name": "Inline JavaScript check",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for inline JavaScript in templates",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "<script[^>]*>[^<]+</script>",
+          "message": "Inline JavaScript detected. Create a separate .js file in static/src/js/ instead."
+        }
+      ]
+    },
+    {
+      "name": "Inline style check",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for inline styles in templates",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "style=\"[^\"]{50,}\"",
+          "message": "Large inline style detected. Consider moving to a separate .scss file in static/src/scss/."
+        }
+      ]
+    },
+    {
+      "name": "Color palette variable check",
+      "matcher": "(Write|Edit).*primary_variables\\.scss$",
+      "description": "Reminds about color palette structure",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Primary variables modified. Ensure o-color-1 through o-color-5 follow semantic meanings: 1=primary brand, 2=secondary, 3=light bg, 4=white/body, 5=dark/text."
+        }
+      ]
+    }
+  ],
+  "PreCommit": [
+    {
+      "name": "Test coverage check",
+      "description": "Reminds to run tests before committing",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Consider running tests before commit: npm test or python -m pytest"
+        }
+      ]
+    },
+    {
+      "name": "Performance audit",
+      "description": "Suggests Lighthouse audit for significant changes",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "For significant frontend changes, consider running Lighthouse audit for performance metrics."
+        }
+      ]
+    },
+    {
+      "name": "Theme manifest check",
+      "description": "Validates theme manifest before commit",
+      "hooks": [
+        {
+          "type": "validate",
+          "files": "__manifest__.py",
+          "checks": ["version", "license", "depends", "assets"]
+        }
+      ]
+    }
+  ],
+  "OnError": [
+    {
+      "name": "Owl component error helper",
+      "matcher": "(Component.*not found|Template.*not found)",
+      "description": "Provides help for Owl component errors",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Owl component error detected. Check: 1) Template name matches, 2) Module is properly loaded, 3) Component is registered"
+        }
+      ]
+    },
+    {
+      "name": "Asset compilation error",
+      "matcher": "(SCSS compilation|Asset.*error)",
+      "description": "Helps with asset compilation errors",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Asset error detected. Try: 1) Clear browser cache, 2) Restart Odoo with --dev=all, 3) Check SCSS syntax, 4) Verify asset bundle in manifest"
+        }
+      ]
+    },
+    {
+      "name": "publicWidget error helper",
+      "matcher": "(Widget.*not found|selector.*not found)",
+      "description": "Provides help for publicWidget errors",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "publicWidget error detected. Check: 1) Selector exists in DOM, 2) Widget is registered in registry, 3) JS file is in web.assets_frontend bundle"
+        }
+      ]
+    },
+    {
+      "name": "Theme page error helper",
+      "matcher": "(theme\\.website\\.page|view_id.*not found)",
+      "description": "Provides help for theme page errors",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Theme page error detected. Check: 1) view_id references correct template, 2) Template exists in views/, 3) Page record uses theme.website.page model"
+        }
+      ]
+    }
+  ]
+}

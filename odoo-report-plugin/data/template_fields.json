@@ -1,0 +1,207 @@
+{
+  "mail.template": {
+    "description": "Odoo mail template model field definitions",
+    "version_support": {
+      "14": true,
+      "15": true,
+      "16": true,
+      "17": true,
+      "18": true,
+      "19": true
+    },
+    "fields": {
+      "core": {
+        "name": {
+          "type": "Char",
+          "required": true,
+          "translatable": true,
+          "description": "Template display name"
+        },
+        "description": {
+          "type": "Text",
+          "required": false,
+          "translatable": true,
+          "description": "Internal documentation"
+        },
+        "model_id": {
+          "type": "Many2one",
+          "relation": "ir.model",
+          "required": true,
+          "description": "Target model"
+        },
+        "model": {
+          "type": "Char",
+          "stored": true,
+          "indexed": true,
+          "description": "Model name (computed from model_id)"
+        },
+        "active": {
+          "type": "Boolean",
+          "default": true,
+          "description": "Template active state"
+        }
+      },
+      "email_header": {
+        "subject": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Email subject line"
+        },
+        "email_from": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Sender address"
+        },
+        "email_to": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Recipient emails (comma-separated)"
+        },
+        "email_cc": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Carbon copy"
+        },
+        "reply_to": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Reply-to address"
+        },
+        "partner_to": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Partner IDs (comma-separated)"
+        }
+      },
+      "content": {
+        "body_html": {
+          "type": "Html",
+          "render_engine": "qweb",
+          "sanitize": "email_outgoing",
+          "description": "Email body content"
+        },
+        "lang": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Language code override"
+        }
+      },
+      "attachments": {
+        "attachment_ids": {
+          "type": "Many2many",
+          "relation": "ir.attachment",
+          "description": "Static file attachments"
+        },
+        "report_template": {
+          "type": "Many2one",
+          "relation": "ir.actions.report",
+          "description": "Report to generate as attachment",
+          "deprecated_in": "17",
+          "replaced_by": "report_template_ids"
+        },
+        "report_template_ids": {
+          "type": "Many2many",
+          "relation": "ir.actions.report",
+          "description": "Reports to generate as attachments",
+          "introduced_in": "17"
+        },
+        "report_name": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Dynamic filename for report attachment"
+        }
+      },
+      "configuration": {
+        "auto_delete": {
+          "type": "Boolean",
+          "default": true,
+          "description": "Delete email after sending"
+        },
+        "use_default_to": {
+          "type": "Boolean",
+          "default": false,
+          "description": "Use model's default recipients"
+        },
+        "mail_server_id": {
+          "type": "Many2one",
+          "relation": "ir.mail_server",
+          "description": "Specific outgoing mail server"
+        },
+        "email_layout_xmlid": {
+          "type": "Char",
+          "description": "Layout template XML ID"
+        },
+        "scheduled_date": {
+          "type": "Char",
+          "render_engine": "inline_template",
+          "description": "Scheduled send datetime"
+        },
+        "template_category": {
+          "type": "Selection",
+          "introduced_in": "16",
+          "options": [
+            ["base_template", "Base Template"],
+            ["hidden_template", "Hidden Template"],
+            ["custom_template", "Custom Template"]
+          ],
+          "description": "Template category for organization"
+        }
+      }
+    }
+  },
+  "ir.actions.report": {
+    "description": "QWeb report action field definitions",
+    "fields": {
+      "name": {
+        "type": "Char",
+        "required": true,
+        "description": "Report display name"
+      },
+      "model": {
+        "type": "Char",
+        "required": true,
+        "description": "Target model name"
+      },
+      "report_type": {
+        "type": "Selection",
+        "options": [
+          ["qweb-pdf", "PDF"],
+          ["qweb-html", "HTML"]
+        ],
+        "default": "qweb-pdf",
+        "description": "Output format"
+      },
+      "report_name": {
+        "type": "Char",
+        "required": true,
+        "description": "QWeb template reference (module.template_id)"
+      },
+      "report_file": {
+        "type": "Char",
+        "description": "Usually same as report_name"
+      },
+      "print_report_name": {
+        "type": "Char",
+        "description": "Dynamic filename expression"
+      },
+      "binding_model_id": {
+        "type": "Many2one",
+        "relation": "ir.model",
+        "description": "Model for print menu binding"
+      },
+      "binding_type": {
+        "type": "Selection",
+        "options": [
+          ["report", "Report"],
+          ["action", "Action"]
+        ],
+        "description": "How report appears in UI"
+      },
+      "paperformat_id": {
+        "type": "Many2one",
+        "relation": "report.paperformat",
+        "description": "Custom paper format"
+      }
+    }
+  }
+}

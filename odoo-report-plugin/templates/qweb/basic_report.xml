@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Basic QWeb PDF Report Template
+
+    Use case: Simple document reports
+    Output: PDF via wkhtmltopdf
+
+    Required model fields:
+    - name (for header and filename)
+
+    Structure:
+    1. ir.actions.report - Report action definition
+    2. template - QWeb template for content
+-->
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_[NAME]" model="ir.actions.report">
+        <field name="name">[Report Display Name]</field>
+        <field name="model">[model.name]</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">[module].report_[name]_template</field>
+        <field name="report_file">[module].report_[name]_template</field>
+        <field name="print_report_name">'[Name] - %s' % object.name</field>
+        <field name="binding_model_id" ref="[module].model_[model_underscore]"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_[name]_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="row mb-4">
+                            <div class="col-8">
+                                <h2 t-field="doc.name"/>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div>
+                                    <strong>Date:</strong>
+                                    <span t-field="doc.create_date" t-options='{"widget": "date"}'/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div class="row">
+                            <div class="col-12">
+                                <t t-if="doc.description">
+                                    <p t-field="doc.description"/>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Additional sections go here -->
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

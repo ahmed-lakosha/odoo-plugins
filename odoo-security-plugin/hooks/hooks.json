@@ -1,0 +1,165 @@
+{
+  "version": "1.0.0",
+  "description": "Odoo Security Plugin hooks — triggered by file system events to suggest security checks",
+  "hooks": [
+    {
+      "id": "new-model-file",
+      "name": "New Model File Created",
+      "description": "Triggered when a new Python file is created in a models/ directory. Suggests running /check-access to verify the new model has proper access rules.",
+      "trigger": {
+        "event": "file_created",
+        "pattern": "**/models/**/*.py",
+        "exclude_patterns": ["**/test_*.py", "**/__init__.py", "**/tests/**"]
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/check-access",
+        "message": "A new model file was created. Run /check-access to verify all models have proper ir.model.access.csv entries.",
+        "priority": "HIGH",
+        "auto_suggest": true,
+        "details": "New Python files in models/ likely define new Odoo models. Every model (including TransientModel wizards) requires entries in security/ir.model.access.csv. Missing access rules allow ALL authenticated users to read/write ALL records of that model."
+      }
+    },
+    {
+      "id": "new-controller-file",
+      "name": "New Controller File Created",
+      "description": "Triggered when a new Python file is created in a controllers/ directory. Suggests running /check-routes to verify HTTP route authentication.",
+      "trigger": {
+        "event": "file_created",
+        "pattern": "**/controllers/**/*.py",
+        "exclude_patterns": ["**/__init__.py"]
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/check-routes",
+        "message": "A new controller file was created. Run /check-routes to audit HTTP route authentication and CSRF configuration.",
+        "priority": "HIGH",
+        "auto_suggest": true,
+        "details": "New controller files likely define @http.route() handlers. Each route needs: (1) explicit auth= parameter, (2) CSRF protection for state-changing routes, (3) proper access control for sensitive data."
+      }
+    },
+    {
+      "id": "access-csv-created",
+      "name": "ir.model.access.csv Created",
+      "description": "Triggered when ir.model.access.csv is created. Validates the file for completeness and correctness.",
+      "trigger": {
+        "event": "file_created",
+        "pattern": "**/security/ir.model.access.csv"
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/check-access",
+        "message": "ir.model.access.csv was created. Run /check-access to validate all models are covered and no syntax errors exist.",
+        "priority": "MEDIUM",
+        "auto_suggest": true,
+        "details": "Validates: (1) all _name models have CSV entries, (2) no empty group_id fields, (3) model_id:id format is correct (model_my_model), (4) group references exist, (5) permissions are appropriate."
+      }
+    },
+    {
+      "id": "access-csv-modified",
+      "name": "ir.model.access.csv Modified",
+      "description": "Triggered when ir.model.access.csv is modified. Re-validates completeness after changes.",
+      "trigger": {
+        "event": "file_modified",
+        "pattern": "**/security/ir.model.access.csv"
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/check-access",
+        "message": "ir.model.access.csv was modified. Run /check-access to re-validate access rule completeness.",
+        "priority": "MEDIUM",
+        "auto_suggest": false,
+        "details": "After modifying access rules, verify: (1) no models lost their rules, (2) group references are still valid, (3) permissions are appropriate for the groups assigned."
+      }
+    },
+    {
+      "id": "new-wizard-file",
+      "name": "New Wizard File Created",
+      "description": "Triggered when a new Python file is created in a wizard/ or wizards/ directory. Reminds about TransientModel access rules.",
+      "trigger": {
+        "event": "file_created",
+        "pattern": ["**/wizard/**/*.py", "**/wizards/**/*.py"],
+        "exclude_patterns": ["**/__init__.py"]
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/check-access",
+        "message": "A new wizard file was created. TransientModel classes require ir.model.access.csv entries. Run /check-access to verify.",
+        "priority": "HIGH",
+        "auto_suggest": true,
+        "details": "TransientModel (wizard) classes are frequently missing from ir.model.access.csv. Without an access rule, any authenticated user can instantiate and execute the wizard. Add entries with perm_create=1 and perm_unlink=1 for wizard lifecycle management."
+      }
+    },
+    {
+      "id": "python-file-modified",
+      "name": "Python File Modified in Module",
+      "description": "Triggered when a Python file is modified in models/ or controllers/. Suggests targeted security check.",
+      "trigger": {
+        "event": "file_modified",
+        "pattern": ["**/models/**/*.py", "**/controllers/**/*.py"],
+        "exclude_patterns": ["**/test_*.py", "**/__init__.py", "**/tests/**"]
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/find-sudo",
+        "message": "A model or controller file was modified. Consider running /find-sudo to check for new sudo() usage patterns.",
+        "priority": "LOW",
+        "auto_suggest": false,
+        "details": "When adding new methods to models or controllers, sudo() usage may be introduced. /find-sudo classifies all sudo() calls by risk level and suggests safer alternatives."
+      }
+    },
+    {
+      "id": "security-dir-created",
+      "name": "Security Directory Created",
+      "description": "Triggered when a security/ directory is created in a module. Provides security file templates.",
+      "trigger": {
+        "event": "directory_created",
+        "pattern": "**/security"
+      },
+      "action": {
+        "type": "suggest_command",
+        "command": "/security-audit",
+        "message": "A security/ directory was created. Run /security-audit to get a full security analysis and template generation for this module.",
+        "priority": "MEDIUM",
+        "auto_suggest": true,
+        "details": "The security/ directory should contain: (1) group_[module].xml — user group definitions, (2) ir.model.access.csv — model CRUD permissions, (3) rules_[module].xml — record-level access rules. /security-audit can help generate these files."
+      }
+    },
+    {
+      "id": "manifest-modified",
+      "name": "__manifest__.py Modified",
+      "description": "Triggered when __manifest__.py is modified. Checks that security files are listed in the data array.",
+      "trigger": {
+        "event": "file_modified",
+        "pattern": "**/__manifest__.py"
+      },
+      "action": {
+        "type": "validate",
+        "checks": [
+          {
+            "id": "security_files_in_data",
+            "description": "Verify security files are listed in __manifest__.py data array in correct order",
+            "pattern": "security.*ir.model.access.csv",
+            "message": "Check that security/ir.model.access.csv is listed in the 'data' array of __manifest__.py",
+            "priority": "MEDIUM"
+          },
+          {
+            "id": "groups_before_access",
+            "description": "Group XML files must be listed before ir.model.access.csv",
+            "message": "Ensure group_*.xml files are listed BEFORE ir.model.access.csv in the data array",
+            "priority": "HIGH"
+          }
+        ],
+        "auto_suggest": false,
+        "message": "__manifest__.py was modified. Verify security files are listed in the data array in the correct order: groups XML → access CSV → rules XML."
+      }
+    }
+  ],
+  "global_settings": {
+    "enabled": true,
+    "min_priority_for_auto_suggest": "HIGH",
+    "cooldown_seconds": 30,
+    "batch_similar_events": true,
+    "batch_window_seconds": 5
+  }
+}

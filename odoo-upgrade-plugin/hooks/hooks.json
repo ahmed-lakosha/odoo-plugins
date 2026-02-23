@@ -1,0 +1,180 @@
+{
+  "PostToolUse": [
+    {
+      "name": "Auto-detect upgrade needs",
+      "matcher": "(Write|Edit).*__manifest__\\.py",
+      "description": "Automatically suggests upgrade when manifest version changes are detected",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Manifest version changed. Consider running an upgrade check for compatibility."
+        }
+      ]
+    },
+    {
+      "name": "Test after module changes",
+      "matcher": "(Write|Edit|Delete).*(models|views|controllers).*\\.(py|xml)$",
+      "description": "Reminds to test module after significant code changes",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Module code changed. Remember to test with: python -m odoo -d [DB] -u [MODULE] --stop-after-init"
+        }
+      ]
+    },
+    {
+      "name": "Check RPC usage (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.(js|ts)$",
+      "description": "Checks for RPC service usage in JavaScript files for Odoo 19",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "useService\\([\"']rpc[\"']\\)",
+          "message": "RPC service detected. In Odoo 19, RPC service is NOT available in frontend. Use fetch-based JSON-RPC instead."
+        }
+      ]
+    },
+    {
+      "name": "Check tree view tag (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for deprecated tree view tag in XML files",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "<tree[^>]*>|</tree>",
+          "message": "Deprecated <tree> tag detected. For Odoo 19, change to <list>. Also update XPath expressions: //tree → //list"
+        }
+      ]
+    },
+    {
+      "name": "Check search view groups (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for group tags in search views",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "<search[^>]*>[\\s\\S]*<group[^>]*expand",
+          "message": "Search view with <group> detected. For Odoo 19, remove <group> tags from search views - place filters at root level."
+        }
+      ]
+    },
+    {
+      "name": "Check kanban-box template (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for deprecated kanban-box template name",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "t-name=[\"']kanban-box[\"']",
+          "message": "Deprecated kanban-box template detected. For Odoo 19, change t-name=\"kanban-box\" to t-name=\"card\"."
+        }
+      ]
+    },
+    {
+      "name": "Check cron numbercall (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for removed numbercall field in cron jobs",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "<field name=[\"']numbercall[\"']>",
+          "message": "Removed field 'numbercall' detected. For Odoo 19, remove this line from cron definitions."
+        }
+      ]
+    },
+    {
+      "name": "Check mail template env param (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for deprecated env parameter in mail template helpers",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "format_(datetime|date|amount)\\(env,",
+          "message": "Deprecated format helper with env param detected. For Odoo 19, remove 'env' parameter: format_datetime(object.date) instead of format_datetime(env, object.date)"
+        }
+      ]
+    },
+    {
+      "name": "Check view_mode tree (Odoo 19)",
+      "matcher": "(Write|Edit).*(\\.(xml|py))$",
+      "description": "Checks for deprecated tree in view_mode",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "view_mode[\"']?\\s*[:=]\\s*[\"']?[^\"']*tree",
+          "message": "Deprecated 'tree' in view_mode detected. For Odoo 19, change 'tree' to 'list' in view_mode values."
+        }
+      ]
+    },
+    {
+      "name": "Check portal XPath patterns (Odoo 19)",
+      "matcher": "(Write|Edit).*\\.xml$",
+      "description": "Checks for deprecated portal view XPath patterns",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "t-if=[\"']not line\\.display_type[\"']",
+          "message": "Deprecated portal XPath pattern detected. For Odoo 19, portal templates restructured - use named selectors like tr[@name='tr_product']."
+        }
+      ]
+    }
+  ],
+  "PreCommit": [
+    {
+      "name": "Validate manifest before commit",
+      "description": "Ensures manifest.py has correct format before committing",
+      "hooks": [
+        {
+          "type": "validate",
+          "files": "__manifest__.py",
+          "checks": ["version", "license", "depends", "author"]
+        }
+      ]
+    },
+    {
+      "name": "Check security files",
+      "description": "Reminds to verify security implementation",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Remember to verify security: ir.model.access.csv for CRUD permissions, group_*.xml for user groups, rules_*.xml for record rules."
+        }
+      ]
+    }
+  ],
+  "OnError": [
+    {
+      "name": "Suggest upgrade on compatibility error",
+      "matcher": "(Invalid field|Service.*not available|cannot import|Invalid view type|cannot be located in parent view)",
+      "description": "Suggests using upgrade skill when compatibility errors occur",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "This looks like a version compatibility issue. Try using the odoo-upgrade skill to fix it. Common Odoo 19 issues: tree→list, search groups, RPC service, kanban-box→card."
+        }
+      ]
+    },
+    {
+      "name": "XPath location error helper",
+      "matcher": "cannot be located in parent view",
+      "description": "Provides help for XPath errors in view inheritance",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "XPath error detected. For Odoo 19: 1) Change //tree to //list, 2) Check portal templates use named selectors, 3) Verify parent view exists."
+        }
+      ]
+    },
+    {
+      "name": "Mail template error helper",
+      "matcher": "AttributeError.*tzinfo|format_datetime.*env",
+      "description": "Provides help for mail template errors",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Mail template error detected. For Odoo 19, remove 'env' parameter from format_datetime(), format_date(), and format_amount() calls."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "odoo-i18n",
+  "version": "1.0.0",
+  "description": "Comprehensive Odoo internationalization toolkit - extract translatable strings, find missing translations, validate .po files, and manage Arabic/RTL layouts across Odoo 14-19. Supports Arabic, English, Turkish, French and more.",
+  "author": {"name": "TAQAT Techno", "email": "contact@taqat-techno.com"},
+  "license": "MIT",
+  "skills": "./odoo-i18n/",
+  "commands": "./commands/",
+  "scripts": "./odoo-i18n/scripts/",
+  "hooks": "./hooks/hooks.json",
+  "metadata": {
+    "mode": "codebase",
+    "supported-versions": ["14","15","16","17","18","19"],
+    "primary-languages": ["ar", "en", "tr", "fr"],
+    "categories": ["i18n", "l10n", "translation", "rtl", "arabic"]
+  }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Basic Notification Email Template
+
+    Use case: Simple notifications, status updates, alerts
+    Layout: mail.mail_notification_layout (full) or mail.mail_notification_light (simple)
+
+    Required model fields:
+    - name (or display_name)
+    - partner_id (or email field)
+
+    Optional model fields:
+    - user_id (for email_from)
+    - company_id (for branding)
+-->
+<odoo>
+    <data noupdate="1">
+        <record id="email_template_basic_notification" model="mail.template">
+            <field name="name">[MODEL]: Basic Notification</field>
+            <field name="model_id" ref="[MODULE].model_[MODEL_UNDERSCORE]"/>
+            <field name="subject">{{ object.name }} - Notification</field>
+            <field name="email_from">{{ (object.user_id.email_formatted if object.user_id else user.email_formatted) }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="email_layout_xmlid">mail.mail_notification_layout</field>
+            <field name="body_html" type="html">
+<div>
+    <p>Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+    <p>This is a notification regarding <strong t-out="object.name"/>.</p>
+
+    <t t-if="object.description">
+        <p t-out="object.description"/>
+    </t>
+
+    <p>Best regards,<br/>
+    <t t-out="object.company_id.name if object.company_id else 'The Team'"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>

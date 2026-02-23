@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    QWeb PDF Report with Line Items Table
+
+    Use case: Orders, invoices, quotes with line items
+    Output: PDF via wkhtmltopdf
+
+    Required model fields:
+    - name
+    - partner_id (for customer info)
+    - line_ids (One2many to line model)
+    - amount_untaxed, amount_tax, amount_total
+    - currency_id
+
+    Line model fields:
+    - name (description)
+    - quantity
+    - price_unit
+    - price_subtotal
+-->
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_[NAME]_detailed" model="ir.actions.report">
+        <field name="name">[Report Name] (Detailed)</field>
+        <field name="model">[model.name]</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">[module].report_[name]_detailed_template</field>
+        <field name="report_file">[module].report_[name]_detailed_template</field>
+        <field name="print_report_name">'[Name] - %s' % object.name</field>
+        <field name="binding_model_id" ref="[module].model_[model_underscore]"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_[name]_detailed_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Document Header -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <h2>
+                                    <span t-field="doc.name"/>
+                                </h2>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div><strong>Date:</strong> <span t-field="doc.date" t-options='{"widget": "date"}'/></div>
+                                <t t-if="doc.reference">
+                                    <div><strong>Reference:</strong> <span t-field="doc.reference"/></div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Customer Info -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Customer:</strong>
+                                <div t-field="doc.partner_id"
+                                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
+                            </div>
+                        </div>
+
+                        <!-- Line Items Table -->
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th class="text-start">Description</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.line_ids" t-as="line">
+                                    <!-- Section Header -->
+                                    <t t-if="line.display_type == 'line_section'">
+                                        <tr>
+                                            <td colspan="99" class="fw-bold bg-light">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Note Line -->
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <tr>
+                                            <td colspan="99" class="fst-italic text-muted">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Regular Line -->
+                                    <t t-else="">
+                                        <tr>
+                                            <td>
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.quantity"/>
+                                                <span t-if="line.product_uom" t-field="line.product_uom.name"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="line.price_unit"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="line.price_subtotal"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Totals Section -->
+                        <div class="row justify-content-end">
+                            <div class="col-4">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Subtotal</strong></td>
+                                        <td class="text-end"><span t-field="doc.amount_untaxed"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Taxes</td>
+                                        <td class="text-end"><span t-field="doc.amount_tax"/></td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td><strong>Total</strong></td>
+                                        <td class="text-end"><span t-field="doc.amount_total"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Notes Section -->
+                        <t t-if="doc.note">
+                            <div class="mt-4">
+                                <strong>Notes:</strong>
+                                <p t-field="doc.note"/>
+                            </div>
+                        </t>
+
+                        <!-- Signature Section -->
+                        <div class="row mt-5" style="page-break-inside: avoid;">
+                            <div class="col-6">
+                                <div class="border-top pt-2">
+                                    <strong>Authorized Signature</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border-top pt-2">
+                                    <strong>Customer Signature</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

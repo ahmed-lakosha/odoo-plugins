@@ -1,0 +1,249 @@
+{
+  "PostToolUse": [
+    {
+      "name": "Suggest test file when model created",
+      "matcher": "(Write|Edit).*models/\\w+\\.py$",
+      "description": "When a new Python file is created in a models/ directory, suggest generating a test file for the new model.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "New model file detected in models/. Consider generating a test skeleton: /test-generate <model.name> --module /path/to/module"
+        }
+      ]
+    },
+    {
+      "name": "Suggest test creation for new models directory",
+      "matcher": "(Write).*/models/\\w+\\.py$",
+      "description": "New model file created — suggest the test-generate command with detected filename.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "New Odoo model file created! To auto-generate a test skeleton:\n  /test-generate <your.model.name> --module /path/to/module\n\nOr run the script directly:\n  python test_generator.py --model <your.model.name> --module /path/to/module"
+        }
+      ]
+    },
+    {
+      "name": "Suggest running tests after manifest created",
+      "matcher": "(Write|Edit).*__manifest__\\.py$",
+      "description": "When __manifest__.py is created or modified, suggest installing and running tests.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Module manifest created/updated. To install and run tests:\n  python -m odoo -c conf/project17.conf -d project17 --test-enable -i <module_name> --stop-after-init\n\nOr use the plugin command:\n  /test-run <module_name> --config conf/project17.conf --database project17"
+        }
+      ]
+    },
+    {
+      "name": "Suggest security tests for access control files",
+      "matcher": "(Write|Edit).*ir\\.model\\.access\\.csv$",
+      "description": "When ir.model.access.csv is created/modified, suggest testing access control.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Access control file (ir.model.access.csv) created/modified. Security tests recommended:\n\n1. Test that users with correct groups CAN access records\n2. Test that users WITHOUT groups CANNOT access records\n\nExample pattern:\n  def test_access_control(self):\n      # User WITH permission\n      self.env['my.model'].with_user(authorized_user).search([])\n      # User WITHOUT permission\n      with self.assertRaises(AccessError):\n          self.env['my.model'].with_user(unauthorized_user).search([])"
+        }
+      ]
+    },
+    {
+      "name": "Suggest tests after adding compute field",
+      "matcher": "(Write|Edit).*models/.*\\.py$",
+      "description": "Detects compute fields added to models and suggests writing compute tests.",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "@api\\.depends\\(",
+          "message": "Computed field with @api.depends detected. Add a test to verify:\n  1. Initial computation on create\n  2. Recomputation when dependency changes\n  3. Stored value persists in database (if store=True)\n\nUse /test-generate to create a skeleton with compute field tests."
+        }
+      ]
+    },
+    {
+      "name": "Suggest tests after adding constraint",
+      "matcher": "(Write|Edit).*models/.*\\.py$",
+      "description": "Detects Python constraints added to models and suggests writing constraint tests.",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "@api\\.constrains\\(",
+          "message": "Python constraint with @api.constrains detected. High-priority test needed:\n\n  def test_constraint_raises_on_invalid_data(self):\n      with self.assertRaises(ValidationError):\n          self.env['my.model'].create({'field': invalid_value})\n\n  def test_constraint_on_write(self):\n      record = self.env['my.model'].create({'field': valid_value})\n      with self.assertRaises(ValidationError):\n          record.write({'field': invalid_value})"
+        }
+      ]
+    },
+    {
+      "name": "Suggest tests after adding action method",
+      "matcher": "(Write|Edit).*models/.*\\.py$",
+      "description": "Detects action_ methods and suggests workflow tests.",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "def action_\\w+\\(",
+          "message": "action_ method detected. Add workflow tests:\n\n  def test_action_<method_name>(self):\n      record = self.env['my.model'].create({...})\n      result = record.action_<method_name>()\n      self.assertEqual(record.state, 'expected_state')\n      # If action returns a view action:\n      # self.assertIn('type', result)\n\nRun /test-generate to include action method stubs automatically."
+        }
+      ]
+    },
+    {
+      "name": "Remind to add tests/ __init__.py",
+      "matcher": "Write.*tests/test_\\w+\\.py$",
+      "description": "When a test file is created, remind to add it to tests/__init__.py.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "New test file created! Ensure tests/__init__.py imports it:\n\n  # tests/__init__.py\n  from . import test_my_module  # Add this line\n\nWithout this import, Odoo's test runner will NOT discover the test file."
+        }
+      ]
+    },
+    {
+      "name": "Suggest coverage check after test run",
+      "matcher": "(Write|Edit).*tests/test_.*\\.py$",
+      "description": "After modifying test files, suggest running coverage analysis.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Test file modified. After running tests, check coverage:\n  /test-coverage /path/to/module\n\nOr with threshold gate (fails if below 80%):\n  /test-coverage /path/to/module --threshold 80"
+        }
+      ]
+    },
+    {
+      "name": "Suggest HTTP test for new controller route",
+      "matcher": "(Write|Edit).*controllers/.*\\.py$",
+      "description": "Detects new HTTP routes and suggests HttpCase tests.",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "@http\\.route\\(",
+          "message": "HTTP route detected in controller. Use HttpCase for route tests:\n\n  from odoo.tests import HttpCase, tagged\n\n  @tagged('post_install', '-at_install')\n  class TestController(HttpCase):\n      def test_route_accessible(self):\n          res = self.url_open('/your/route')\n          self.assertEqual(res.status_code, 200)\n\n      def test_authenticated_route(self):\n          self.authenticate('admin', 'admin')\n          res = self.url_open('/your/route')\n          self.assertEqual(res.status_code, 200)"
+        }
+      ]
+    },
+    {
+      "name": "Warn on SavepointCase usage in modern Odoo",
+      "matcher": "(Write|Edit).*tests/.*\\.py$",
+      "description": "Detects deprecated SavepointCase import and warns about removal in Odoo 16+.",
+      "hooks": [
+        {
+          "type": "check",
+          "pattern": "SavepointCase",
+          "message": "SavepointCase detected! This was removed in Odoo 16+.\n\nFor Odoo 16-19: Use TransactionCase instead.\nFor partial rollback: Use self.env.cr.savepoint() context manager.\n\n  # Old (Odoo 14-15 only):\n  from odoo.tests.common import SavepointCase\n  class MyTest(SavepointCase): ...\n\n  # New (Odoo 16+):\n  from odoo.tests import TransactionCase\n  class MyTest(TransactionCase):\n      def test_with_partial_rollback(self):\n          with self.env.cr.savepoint():\n              # This block rolls back if exception occurs\n              ..."
+        }
+      ]
+    },
+    {
+      "name": "Suggest update command after model changes",
+      "matcher": "(Write|Edit).*(models|views|data)/.*\\.(py|xml)$",
+      "description": "Reminds to update the module after code changes before running tests.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Module source changed. Run update before tests:\n  python -m odoo -c conf/project17.conf -d project17 -u <module_name> --stop-after-init\n\nOr update and test in one command:\n  python -m odoo -c conf/project17.conf -d project17 --test-enable -u <module_name> --stop-after-init"
+        }
+      ]
+    }
+  ],
+  "PreCommit": [
+    {
+      "name": "Verify tests exist before commit",
+      "description": "Checks that test files exist for modules being committed.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Before committing: Verify your module has tests in tests/ directory.\nRun: /test-coverage /path/to/module\nMinimum recommended: 70% coverage for non-trivial modules."
+        }
+      ]
+    },
+    {
+      "name": "Check test imports are correct",
+      "description": "Reminds to verify test file imports work before committing.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Pre-commit checklist for tests:\n  1. tests/__init__.py imports all test files\n  2. Test classes use @tagged('post_install', '-at_install')\n  3. No print() statements left in test code\n  4. Tests pass: python -m odoo -c conf/project.conf -d db --test-enable -u module --stop-after-init"
+        }
+      ]
+    }
+  ],
+  "OnError": [
+    {
+      "name": "Help with test discovery failure",
+      "matcher": "no test found|ImportError.*tests",
+      "description": "Suggests fixes when Odoo cannot discover or import test files.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Test discovery failed. Check:\n  1. tests/__init__.py exists AND imports your test module:\n       from . import test_my_model\n  2. Test class inherits from TransactionCase or HttpCase\n  3. Test methods start with 'test_'\n  4. Module is in addons_path and installed in database\n  5. No import errors in test file (run: python -c \"import my_module.tests.test_file\")"
+        }
+      ]
+    },
+    {
+      "name": "Help with SavepointCase import error",
+      "matcher": "cannot import name 'SavepointCase'",
+      "description": "Provides fix when SavepointCase is imported in Odoo 16+.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "SavepointCase was removed in Odoo 16+.\n\nFix: Replace in your test file:\n  # Remove this:\n  from odoo.tests.common import SavepointCase\n  class MyTest(SavepointCase):\n\n  # Use this:\n  from odoo.tests import TransactionCase\n  class MyTest(TransactionCase):"
+        }
+      ]
+    },
+    {
+      "name": "Help with AccessError in tests",
+      "matcher": "AccessError.*tests|odoo\\.tests.*AccessError",
+      "description": "Suggests using sudo() or adding user to groups when AccessError occurs in tests.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "AccessError in test! Options:\n  1. Use sudo() for admin-level test setup:\n       record = self.env['my.model'].sudo().create({...})\n  2. Add user to required group in setUp:\n       self.env.user.groups_id |= self.env.ref('my_module.group_manager')\n  3. Run as specific user:\n       record.with_user(self.env.ref('base.user_admin'))\n  4. Check ir.model.access.csv has correct permissions"
+        }
+      ]
+    },
+    {
+      "name": "Help with ValidationError not raised",
+      "matcher": "AssertionError.*ValidationError|ValidationError not raised",
+      "description": "Suggests debugging when expected ValidationError is not raised.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Expected ValidationError was not raised. Debug steps:\n  1. Verify @api.constrains decorator is on the method\n  2. Check constraint field names match the failing field\n  3. Verify the invalid value you're testing actually violates the constraint\n  4. Try calling the constraint method directly: record._check_my_constraint()\n  5. Check if constraint only runs on create vs write (test both)"
+        }
+      ]
+    },
+    {
+      "name": "Help with computed field not updating",
+      "matcher": "AssertionError.*compute|computed field.*0|assertAlmostEqual.*0\\.0",
+      "description": "Provides guidance when computed fields return 0 or stale values in tests.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "Computed field may not have updated. Try:\n  1. Invalidate the cache after dependency change:\n       record.invalidate_recordset(['computed_field_name'])\n  2. For Odoo 14-15: record.invalidate_cache()\n  3. Read directly from DB to check stored value:\n       self.env.cr.execute('SELECT field FROM table WHERE id=%s', [record.id])\n  4. Verify @api.depends lists the correct dependency fields\n  5. For non-stored fields, call: record._compute_field_name()"
+        }
+      ]
+    },
+    {
+      "name": "Help with UniqueViolation in tests",
+      "matcher": "UniqueViolation|unique constraint.*violated",
+      "description": "Suggests using savepoints when testing SQL unique constraints.",
+      "hooks": [
+        {
+          "type": "suggestion",
+          "message": "PostgreSQL UniqueViolation in test. Use savepoints to handle expected DB errors:\n\n  def test_unique_constraint(self):\n      self.env['my.model'].create({'code': 'UNIQUE'})\n      with self.assertRaises(Exception):  # IntegrityError or UserError\n          with self.env.cr.savepoint():\n              self.env['my.model'].create({'code': 'UNIQUE'})\n\nThe savepoint prevents the failed transaction from corrupting the test."
+        }
+      ]
+    }
+  ],
+  "proactive_suggestions": {
+    "test_generation": {
+      "trigger": "user adds a new model class or mentions 'new model'",
+      "suggestion": "Use /test-generate to create a test skeleton automatically: /test-generate <model.name> --module /path/to/module"
+    },
+    "test_running": {
+      "trigger": "user makes changes to model methods or business logic",
+      "suggestion": "Run tests to verify your changes: /test-run <module> --config conf/project17.conf --database db"
+    },
+    "coverage_check": {
+      "trigger": "user completes module development or asks about test quality",
+      "suggestion": "Check coverage to find untested methods: /test-coverage /path/to/module --threshold 80"
+    },
+    "mock_data": {
+      "trigger": "user is writing setUp or needs test fixtures",
+      "suggestion": "Generate realistic test fixtures: /test-data --model <model.name> --count 5 --format setup_method"
+    }
+  }
+}

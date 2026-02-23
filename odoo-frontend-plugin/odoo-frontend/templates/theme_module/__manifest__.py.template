@@ -1,0 +1,48 @@
+{
+    'name': 'Theme {{THEME_NAME}}',
+    'version': '{{ODOO_VERSION}}.1.0.0',
+    'category': 'Website/Theme',
+    'author': '{{AUTHOR}}',
+    'summary': '{{THEME_NAME}} - Modern Odoo Website Theme',
+    'description': '''
+        {{THEME_NAME}} Theme
+        ===================
+        A modern, responsive theme for Odoo {{ODOO_VERSION}} websites.
+
+        Features:
+        - Bootstrap {{BOOTSTRAP_VERSION}}
+        - Responsive design
+        - Custom snippets
+        - Customizable colors
+        - Google Fonts integration
+    ''',
+    'depends': ['website'],
+    'data': [
+        'views/templates.xml',
+        'views/snippets/custom_snippets.xml',
+        'data/pages.xml',
+    ],
+    'assets': {
+        'web._assets_primary_variables': [
+            'theme_{{THEME_NAME_LOWER}}/static/src/scss/primary_variables.scss',
+        ],
+        'web._assets_frontend_helpers': [
+            'theme_{{THEME_NAME_LOWER}}/static/src/scss/bootstrap_overridden.scss',
+        ],
+        'web.assets_frontend': [
+            'theme_{{THEME_NAME_LOWER}}/static/src/scss/theme.scss',
+            'theme_{{THEME_NAME_LOWER}}/static/src/js/theme.js',
+        ],
+        'website.assets_wysiwyg': [
+            'theme_{{THEME_NAME_LOWER}}/static/src/js/snippets_options.js',
+        ],
+    },
+    'images': [
+        'static/description/cover.png',
+        'static/description/theme_screenshot.png',
+    ],
+    'installable': True,
+    'auto_install': False,
+    'application': False,
+    'license': 'LGPL-3',
+}

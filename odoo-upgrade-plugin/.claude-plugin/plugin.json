@@ -1,0 +1,52 @@
+{
+  "name": "odoo-upgrade",
+  "version": "4.0.0",
+  "description": "Comprehensive Odoo ERP upgrade assistant for migrating modules between versions 14-19. Handles XML views, Python APIs, JavaScript/OWL components, theme SCSS variables, portal templates, mail templates, security implementations, and database migrations with automated pattern recognition.",
+  "author": {
+    "name": "TAQAT Techno",
+    "email": "contact@taqat-techno.com",
+    "url": "https://github.com/taqat-techno"
+  },
+  "homepage": "https://github.com/taqat-techno/plugins/tree/main/odoo-upgrade-plugin",
+  "repository": "https://github.com/taqat-techno/plugins",
+  "license": "MIT",
+  "keywords": [
+    "odoo",
+    "erp",
+    "upgrade",
+    "migration",
+    "version-compatibility",
+    "xml-transformation",
+    "rpc-service",
+    "owl-components",
+    "bootstrap",
+    "portal-views",
+    "mail-templates",
+    "security",
+    "odoo14",
+    "odoo15",
+    "odoo16",
+    "odoo17",
+    "odoo18",
+    "odoo19"
+  ],
+  "skills": "./odoo-upgrade/",
+  "scripts": "./odoo-upgrade/scripts/",
+  "hooks": "./hooks/hooks.json",
+  "metadata": {
+    "odoo-versions": ["14", "15", "16", "17", "18", "19"],
+    "supported-migrations": [
+      "14-to-15",
+      "15-to-16",
+      "16-to-17",
+      "17-to-18",
+      "18-to-19"
+    ],
+    "transformation-patterns": 150,
+    "auto-fixes": 75,
+    "manual-steps-documented": true,
+    "bootstrap-migration": "4.x-to-5.1.3",
+    "owl-migration": "v1-to-v2",
+    "portal-xpath-fixes": true
+  }
+}

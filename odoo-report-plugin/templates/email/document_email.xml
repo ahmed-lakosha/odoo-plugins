@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document Email Template with PDF Attachment
+
+    Use case: Sending quotations, orders, invoices with PDF attachment
+    Layout: mail.mail_notification_layout
+
+    Required model fields:
+    - name
+    - partner_id
+    - amount_total (or similar monetary field)
+    - currency_id
+    - state
+
+    Optional model fields:
+    - user_id
+    - company_id
+    - validity_date
+    - payment_reference
+
+    Version notes:
+    - Odoo 14-16: Use report_template
+    - Odoo 17+: Use report_template_ids
+-->
+<odoo>
+    <data noupdate="1">
+        <record id="email_template_document" model="mail.template">
+            <field name="name">[MODEL]: Send Document</field>
+            <field name="model_id" ref="[MODULE].model_[MODEL_UNDERSCORE]"/>
+            <field name="subject">
+                {{ object.state in ('draft', 'sent') and 'Quotation' or 'Order' }} {{ object.name }}
+            </field>
+            <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.partner_id.id }}</field>
+
+            <!-- Odoo 17+ use report_template_ids -->
+            <field name="report_template_ids" eval="[(4, ref('[MODULE].action_report_[REPORT_NAME]'))]"/>
+            <!-- Odoo 14-16 use report_template instead:
+            <field name="report_template" ref="[MODULE].action_report_[REPORT_NAME]"/>
+            -->
+
+            <field name="report_name">{{ (object.name or 'Document').replace('/', '-') }}</field>
+            <field name="email_layout_xmlid">mail.mail_notification_layout</field>
+            <field name="body_html" type="html">
+<div>
+    <t t-set="doc_name" t-value="'quotation' if object.state in ('draft', 'sent') else 'order'"/>
+
+    <p>Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+    <p>Please find attached your <t t-out="doc_name"/>
+       <strong t-out="object.name"/> amounting to
+       <strong t-out="format_amount(object.amount_total, object.currency_id)"/>.</p>
+
+    <t t-if="object.validity_date">
+        <p>This offer is valid until <t t-out="format_date(object.validity_date)"/>.</p>
+    </t>
+
+    <!-- CTA Button -->
+    <t t-set="button_color" t-value="(object.company_id.email_secondary_color if hasattr(object.company_id, 'email_secondary_color') else False) or '#875A7B'"/>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center" style="padding: 16px;">
+                <a t-att-href="object.get_portal_url()"
+                   t-att-style="'display: inline-block; padding: 10px 20px; color: #ffffff; text-decoration: none; border-radius: 3px; background-color: %s' % button_color">
+                    View Online
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <p>Do not hesitate to contact us if you have any questions.</p>
+
+    <p>Best regards,</p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>

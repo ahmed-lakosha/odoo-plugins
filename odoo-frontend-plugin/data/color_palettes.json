@@ -1,0 +1,95 @@
+{
+  "semantic_colors": {
+    "o-color-1": {
+      "name": "Primary",
+      "purpose": "Brand color, buttons, links, headers",
+      "typical_use": ["btn-primary", "text-primary", "bg-primary"],
+      "default": "#207AB7"
+    },
+    "o-color-2": {
+      "name": "Secondary",
+      "purpose": "Accent color, CTAs, highlights",
+      "typical_use": ["btn-secondary", "text-secondary", "accent elements"],
+      "default": "#FB9F54"
+    },
+    "o-color-3": {
+      "name": "Light Background",
+      "purpose": "Section backgrounds, cards, alternating sections",
+      "typical_use": ["section backgrounds", "card backgrounds", "light overlays"],
+      "default": "#F6F4F0"
+    },
+    "o-color-4": {
+      "name": "White/Base",
+      "purpose": "Body background, content areas",
+      "typical_use": ["body background", "white space", "content containers"],
+      "default": "#FFFFFF"
+    },
+    "o-color-5": {
+      "name": "Dark Text",
+      "purpose": "Headings, body text, dark elements",
+      "typical_use": ["headings", "body text", "footer backgrounds"],
+      "default": "#191A19"
+    }
+  },
+  "derivation_rules": {
+    "when_only_two_colors": {
+      "o-color-3": "lighten(primary, 45%)",
+      "o-color-4": "#FFFFFF",
+      "o-color-5": "darken(primary, 40%) or #191A19"
+    }
+  },
+  "preset_palettes": {
+    "corporate_blue": {
+      "o-color-1": "#2C5282",
+      "o-color-2": "#ED8936",
+      "o-color-3": "#F7FAFC",
+      "o-color-4": "#FFFFFF",
+      "o-color-5": "#1A202C"
+    },
+    "modern_teal": {
+      "o-color-1": "#0D9488",
+      "o-color-2": "#F59E0B",
+      "o-color-3": "#F0FDFA",
+      "o-color-4": "#FFFFFF",
+      "o-color-5": "#134E4A"
+    },
+    "elegant_purple": {
+      "o-color-1": "#7C3AED",
+      "o-color-2": "#EC4899",
+      "o-color-3": "#F5F3FF",
+      "o-color-4": "#FFFFFF",
+      "o-color-5": "#1F2937"
+    },
+    "natural_green": {
+      "o-color-1": "#059669",
+      "o-color-2": "#F97316",
+      "o-color-3": "#ECFDF5",
+      "o-color-4": "#FFFFFF",
+      "o-color-5": "#064E3B"
+    },
+    "warm_red": {
+      "o-color-1": "#DC2626",
+      "o-color-2": "#2563EB",
+      "o-color-3": "#FEF2F2",
+      "o-color-4": "#FFFFFF",
+      "o-color-5": "#1F2937"
+    }
+  },
+  "palette_options": {
+    "menu": {
+      "description": "Color used for menu/navigation",
+      "values": [1, 2, 3, 4, 5],
+      "default": 1
+    },
+    "footer": {
+      "description": "Color used for footer background",
+      "values": [1, 2, 3, 4, 5],
+      "default": 1
+    },
+    "copyright": {
+      "description": "Color used for copyright section",
+      "values": [1, 2, 3, 4, 5],
+      "default": 5
+    }
+  }
+}

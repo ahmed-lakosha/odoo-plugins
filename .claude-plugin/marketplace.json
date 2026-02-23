@@ -1,0 +1,83 @@
+{
+  "name": "cloud-market",
+  "owner": {
+    "name": "ahmed-lakosha",
+    "email": "ahmed.lakosha94@gmail.com"
+  },
+  "metadata": {
+    "description": "Cloud Market — Professional Odoo development plugins for Claude Code",
+    "version": "1.0.0",
+    "plugins_count": 6
+  },
+  "plugins": [
+    {
+      "name": "odoo-upgrade",
+      "description": "Comprehensive Odoo module upgrade assistant for migrating between versions (14-19)",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./odoo-upgrade-plugin/odoo-upgrade"
+      ]
+    },
+    {
+      "name": "odoo-frontend",
+      "description": "Odoo website theme development with MCP integration and Bootstrap version management",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./odoo-frontend-plugin/odoo-frontend"
+      ],
+      "commands": [
+        "./odoo-frontend-plugin/commands"
+      ]
+    },
+    {
+      "name": "odoo-report",
+      "description": "Professional Odoo QWeb reports & email templates toolkit across Odoo 14-19",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./odoo-report-plugin/odoo-report"
+      ],
+      "commands": [
+        "./odoo-report-plugin/commands"
+      ]
+    },
+    {
+      "name": "odoo-test",
+      "description": "Odoo testing toolkit — test generation, mock data, coverage analysis (v14-19)",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./odoo-test-plugin/odoo-test"
+      ],
+      "commands": [
+        "./odoo-test-plugin/commands"
+      ]
+    },
+    {
+      "name": "odoo-security",
+      "description": "Odoo security audit — access rules, route auth, sudo() analysis with risk scoring",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./odoo-security-plugin/odoo-security"
+      ],
+      "commands": [
+        "./odoo-security-plugin/commands"
+      ]
+    },
+    {
+      "name": "odoo-i18n",
+      "description": "Odoo i18n toolkit — extract, validate, report missing translations, Arabic/RTL (v14-19)",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./odoo-i18n-plugin/odoo-i18n"
+      ],
+      "commands": [
+        "./odoo-i18n-plugin/commands"
+      ]
+    }
+  ]
+}

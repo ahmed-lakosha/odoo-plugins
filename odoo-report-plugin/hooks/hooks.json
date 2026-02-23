@@ -1,0 +1,95 @@
+{
+  "description": "Event-driven hooks for Odoo Report Plugin",
+  "hooks": {
+    "on_file_create": {
+      "triggers": [
+        {
+          "pattern": "*/data/mail_template*.xml",
+          "suggestion": "New email template file detected. Would you like me to validate the template syntax?",
+          "actions": ["/validate-template {file}"]
+        },
+        {
+          "pattern": "*/reports/*.xml",
+          "suggestion": "New report file detected. Would you like me to check the QWeb structure?",
+          "actions": ["/validate-template {file}"]
+        }
+      ]
+    },
+    "on_file_edit": {
+      "triggers": [
+        {
+          "pattern": "*/data/mail_template*.xml",
+          "condition": "body_html modified",
+          "suggestion": "Email template body modified. Run validation to check for issues?",
+          "actions": ["/analyze-template {file}"]
+        }
+      ]
+    },
+    "on_error": {
+      "triggers": [
+        {
+          "pattern": "AttributeError: 'NoneType'",
+          "suggestion": "This error typically means a null check is missing. Would you like me to suggest fixes?",
+          "actions": ["/debug-template", "/fix-template"]
+        },
+        {
+          "pattern": "QWebException",
+          "suggestion": "QWeb rendering error detected. Let me analyze the template.",
+          "actions": ["/debug-template"]
+        },
+        {
+          "pattern": "t-esc is deprecated",
+          "suggestion": "Deprecated syntax detected. I can migrate to t-out syntax.",
+          "actions": ["/migrate-template --to-current"]
+        }
+      ]
+    },
+    "on_command": {
+      "triggers": [
+        {
+          "command": "/create-email-template",
+          "post_action": "After creation, would you like to preview the template?",
+          "actions": ["/preview-template {created_template}"]
+        },
+        {
+          "command": "/migrate-template",
+          "post_action": "Migration complete. Run validation to verify?",
+          "actions": ["/validate-template {file}"]
+        }
+      ]
+    },
+    "on_model_mention": {
+      "triggers": [
+        {
+          "models": ["sale.order", "purchase.order", "account.move"],
+          "context": "email template",
+          "suggestion": "I can show you existing templates for this model or create a new one.",
+          "actions": ["/list-templates {model}"]
+        }
+      ]
+    },
+    "on_version_detect": {
+      "triggers": [
+        {
+          "condition": "version_mismatch",
+          "suggestion": "Template syntax may not be compatible with detected Odoo version. Would you like me to check?",
+          "actions": ["/analyze-template --version"]
+        }
+      ]
+    }
+  },
+  "proactive_suggestions": {
+    "template_creation": {
+      "trigger": "user mentions 'email', 'notification', 'template' for a model",
+      "suggestion": "I can help you create an email template for this. Use /create-email-template {model} {purpose}"
+    },
+    "report_creation": {
+      "trigger": "user mentions 'report', 'PDF', 'print' for a model",
+      "suggestion": "I can help you create a QWeb PDF report. Use /create-qweb-report {model} {name}"
+    },
+    "migration": {
+      "trigger": "user mentions upgrading Odoo version",
+      "suggestion": "Don't forget to migrate your email templates! Use /migrate-template to update syntax."
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "name": "odoo-test",
+  "version": "1.0.0",
+  "description": "Comprehensive Odoo testing toolkit - generate test skeletons, run test suites, create mock data, and analyze test coverage across Odoo 14-19. Integrates with Azure DevOps for test result reporting.",
+  "author": {
+    "name": "TAQAT Techno",
+    "email": "contact@taqat-techno.com",
+    "url": "https://github.com/taqat-techno"
+  },
+  "homepage": "https://github.com/taqat-techno/plugins/tree/main/odoo-test-plugin",
+  "repository": "https://github.com/taqat-techno/plugins",
+  "license": "MIT",
+  "keywords": [
+    "odoo",
+    "erp",
+    "testing",
+    "unit-tests",
+    "integration-tests",
+    "mock-data",
+    "coverage",
+    "test-generation",
+    "azure-devops",
+    "transactioncase",
+    "httpcase",
+    "savepointcase",
+    "odoo14",
+    "odoo15",
+    "odoo16",
+    "odoo17",
+    "odoo18",
+    "odoo19"
+  ],
+  "skills": "./odoo-test/",
+  "commands": "./commands/",
+  "scripts": "./odoo-test/scripts/",
+  "hooks": "./hooks/hooks.json",
+  "metadata": {
+    "mode": "codebase",
+    "supported-versions": ["14", "15", "16", "17", "18", "19"],
+    "primary-version": "17",
+    "commands_count": 5,
+    "test-patterns": "80+",
+    "mock-data-generators": "20+",
+    "categories": [
+      "testing",
+      "unit-tests",
+      "integration-tests",
+      "mock-data",
+      "coverage",
+      "azure-devops"
+    ]
+  },
+  "dependencies": {
+    "odoo_modules": ["base"],
+    "optional_modules": ["sale", "purchase", "account", "hr", "stock", "website"],
+    "python_packages": ["coverage", "pytest", "colorama"]
+  },
+  "configuration": {
+    "default_odoo_path": "C:\\odoo",
+    "version_detection": "auto",
+    "output_format": "python",
+    "default_tags": ["post_install", "-at_install"]
+  }
+}

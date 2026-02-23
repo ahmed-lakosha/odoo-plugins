@@ -1,0 +1,168 @@
+{
+  "odoo_versions": {
+    "14": {
+      "bootstrap_version": "4.6.2",
+      "owl_version": null,
+      "javascript": "ES6+",
+      "asset_syntax": "legacy",
+      "margin_classes": {
+        "left": "ml-",
+        "right": "mr-"
+      },
+      "padding_classes": {
+        "left": "pl-",
+        "right": "pr-"
+      },
+      "text_classes": {
+        "left": "text-left",
+        "right": "text-right"
+      },
+      "float_classes": {
+        "left": "float-left",
+        "right": "float-right"
+      },
+      "data_attributes": {
+        "toggle": "data-toggle",
+        "target": "data-target",
+        "dismiss": "data-dismiss"
+      }
+    },
+    "15": {
+      "bootstrap_version": "4.6.2",
+      "owl_version": "1.x",
+      "javascript": "ES6+",
+      "asset_syntax": "legacy",
+      "margin_classes": {
+        "left": "ml-",
+        "right": "mr-"
+      },
+      "padding_classes": {
+        "left": "pl-",
+        "right": "pr-"
+      },
+      "text_classes": {
+        "left": "text-left",
+        "right": "text-right"
+      },
+      "float_classes": {
+        "left": "float-left",
+        "right": "float-right"
+      },
+      "data_attributes": {
+        "toggle": "data-toggle",
+        "target": "data-target",
+        "dismiss": "data-dismiss"
+      }
+    },
+    "16": {
+      "bootstrap_version": "5.1.3",
+      "owl_version": "1.x",
+      "javascript": "ES2020+",
+      "asset_syntax": "modern",
+      "margin_classes": {
+        "left": "ms-",
+        "right": "me-"
+      },
+      "padding_classes": {
+        "left": "ps-",
+        "right": "pe-"
+      },
+      "text_classes": {
+        "left": "text-start",
+        "right": "text-end"
+      },
+      "float_classes": {
+        "left": "float-start",
+        "right": "float-end"
+      },
+      "data_attributes": {
+        "toggle": "data-bs-toggle",
+        "target": "data-bs-target",
+        "dismiss": "data-bs-dismiss"
+      }
+    },
+    "17": {
+      "bootstrap_version": "5.1.3",
+      "owl_version": "2.x",
+      "javascript": "ES2020+",
+      "asset_syntax": "modern",
+      "margin_classes": {
+        "left": "ms-",
+        "right": "me-"
+      },
+      "padding_classes": {
+        "left": "ps-",
+        "right": "pe-"
+      },
+      "text_classes": {
+        "left": "text-start",
+        "right": "text-end"
+      },
+      "float_classes": {
+        "left": "float-start",
+        "right": "float-end"
+      },
+      "data_attributes": {
+        "toggle": "data-bs-toggle",
+        "target": "data-bs-target",
+        "dismiss": "data-bs-dismiss"
+      }
+    },
+    "18": {
+      "bootstrap_version": "5.1.3",
+      "owl_version": "2.x",
+      "javascript": "ES2020+",
+      "asset_syntax": "modern",
+      "snippet_groups": true,
+      "margin_classes": {
+        "left": "ms-",
+        "right": "me-"
+      },
+      "padding_classes": {
+        "left": "ps-",
+        "right": "pe-"
+      },
+      "text_classes": {
+        "left": "text-start",
+        "right": "text-end"
+      },
+      "float_classes": {
+        "left": "float-start",
+        "right": "float-end"
+      },
+      "data_attributes": {
+        "toggle": "data-bs-toggle",
+        "target": "data-bs-target",
+        "dismiss": "data-bs-dismiss"
+      }
+    },
+    "19": {
+      "bootstrap_version": "5.1.3",
+      "owl_version": "2.x",
+      "javascript": "ES2020+",
+      "asset_syntax": "modern",
+      "snippet_groups": true,
+      "margin_classes": {
+        "left": "ms-",
+        "right": "me-"
+      },
+      "padding_classes": {
+        "left": "ps-",
+        "right": "pe-"
+      },
+      "text_classes": {
+        "left": "text-start",
+        "right": "text-end"
+      },
+      "float_classes": {
+        "left": "float-start",
+        "right": "float-end"
+      },
+      "data_attributes": {
+        "toggle": "data-bs-toggle",
+        "target": "data-bs-target",
+        "dismiss": "data-bs-dismiss"
+      }
+    }
+  }
+}
