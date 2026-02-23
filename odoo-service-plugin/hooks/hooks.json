@@ -1,0 +1,151 @@
+{
+  "hooks": [
+    {
+      "id": "requirements-changed",
+      "type": "PostToolUse",
+      "description": "When requirements.txt is modified, suggest running pip install",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/requirements*.txt"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "requirements.txt was modified. Run pip install to apply:\n\n```bash\n# Windows (venv activated)\npip install -r requirements.txt\n\n# Or with venv path\n.venv\\Scripts\\pip install -r requirements.txt\n\n# Docker\ndocker-compose up -d --build\n```"
+      }
+    },
+    {
+      "id": "conf-file-changed",
+      "type": "PostToolUse",
+      "description": "When an Odoo .conf file is modified, suggest server restart",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/conf/*.conf"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Odoo configuration file was modified. Restart the server to apply changes:\n\n```bash\n# Local: Stop then restart\n/odoo-stop\n/odoo-start --config [your-config].conf\n\n# Or use restart command\npython odoo-service/scripts/server_manager.py restart --config conf/[your-config].conf\n```"
+      }
+    },
+    {
+      "id": "docker-compose-changed",
+      "type": "PostToolUse",
+      "description": "When docker-compose.yml is modified, suggest rebuilding containers",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/docker-compose*.yml"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "docker-compose.yml was modified. Recreate containers to apply changes:\n\n```bash\n# Restart with updated config\ndocker-compose up -d\n\n# Or if service definitions changed\ndocker-compose down && docker-compose up -d\n```"
+      }
+    },
+    {
+      "id": "dockerfile-changed",
+      "type": "PostToolUse",
+      "description": "When Dockerfile is modified, suggest rebuilding the image",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/Dockerfile"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Dockerfile was modified. Rebuild the Docker image:\n\n```bash\n# Rebuild and restart\ndocker-compose up -d --build\n\n# Or rebuild without cache (for clean rebuild)\ndocker-compose build --no-cache && docker-compose up -d\n\n# Using plugin command\n/odoo-docker build\n/odoo-docker up\n```"
+      }
+    },
+    {
+      "id": "model-file-created",
+      "type": "PostToolUse",
+      "description": "When a new models/*.py file is created, suggest updating the module",
+      "matcher": {
+        "tool": ["Write"],
+        "file_pattern": "**/models/*.py"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "New model file created. Update the module to apply changes:\n\n```bash\n# Update the module (replace MODULE with your module name)\npython -m odoo -c conf/[CONFIG].conf -d [DATABASE] -u [MODULE] --stop-after-init\n\n# If this is a new module, install it first\npython -m odoo -c conf/[CONFIG].conf -d [DATABASE] -i [MODULE] --stop-after-init\n```\n\nAlso ensure:\n1. Model class is imported in `models/__init__.py`\n2. Model has security entry in `security/ir.model.access.csv`"
+      }
+    },
+    {
+      "id": "manifest-changed",
+      "type": "PostToolUse",
+      "description": "When __manifest__.py is modified, check version bump and suggest update",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/__manifest__.py"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "__manifest__.py was modified. Update the module to apply changes:\n\n```bash\npython -m odoo -c conf/[CONFIG].conf -d [DATABASE] -u [MODULE] --stop-after-init\n```\n\nIf you added new data files, install instead of update:\n```bash\npython -m odoo -c conf/[CONFIG].conf -d [DATABASE] -i [MODULE] --stop-after-init\n```\n\nRemember to bump the version: `'version': '17.0.X.Y.Z'`"
+      }
+    },
+    {
+      "id": "pre-commit-reminder",
+      "type": "PreCommit",
+      "description": "Remind to restart server after commit to apply changes",
+      "action": {
+        "type": "suggest",
+        "message": "After committing, remember to restart Odoo to apply code changes:\n\n```bash\n# Local\n/odoo-stop && /odoo-start --config [CONFIG].conf --dev\n\n# Docker\ndocker-compose restart odoo\n\n# Or update specific module\npython -m odoo -c conf/[CONFIG].conf -d [DB] -u [MODULE] --stop-after-init\n```"
+      }
+    },
+    {
+      "id": "error-address-in-use",
+      "type": "OnError",
+      "description": "Port already in use error — suggest /odoo-stop",
+      "matcher": {
+        "pattern": "Address already in use|Only one usage of each socket address|WinError 10048|OSError: \\[Errno 98\\]"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Port 8069 is already in use. Another Odoo instance is running.\n\nStop it with:\n```bash\n# Plugin command\n/odoo-stop\n\n# Windows manual\nFOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :8069') DO taskkill /PID %P /F\n\n# Linux/Mac\nlsof -ti:8069 | xargs kill -9\n```\n\nThen restart Odoo."
+      }
+    },
+    {
+      "id": "error-postgresql-connection",
+      "type": "OnError",
+      "description": "PostgreSQL connection refused — suggest starting PostgreSQL",
+      "matcher": {
+        "pattern": "could not connect to server: Connection refused|Is the server running|FATAL: role .* does not exist|pg_isready.*no response"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Cannot connect to PostgreSQL. The database server may not be running.\n\nStart PostgreSQL:\n```bash\n# Windows\nnet start postgresql-x64-15\n# or\nnssm start postgresql\n\n# Linux\nsudo systemctl start postgresql\n\n# Verify\npg_isready -h localhost -p 5432\npsql -U odoo -h localhost -c 'SELECT 1;'\n```\n\nIf role does not exist:\n```sql\npsql -U postgres -c \"CREATE USER odoo WITH PASSWORD 'odoo' CREATEDB;\"\n```"
+      }
+    },
+    {
+      "id": "error-no-module-named",
+      "type": "OnError",
+      "description": "Python import error — suggest pip install",
+      "matcher": {
+        "pattern": "No module named '([^']+)'|ModuleNotFoundError: No module named|ImportError: cannot import name"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Python module import failed. The package may not be installed.\n\nFix:\n```bash\n# Install missing package\npip install [PACKAGE_NAME]\n\n# Or install all requirements\npip install -r requirements.txt\n\n# If project-specific requirements exist\npip install -r projects/[PROJECT]/requirements.txt\n\n# Verify venv is activated\nwhere python  # Windows\nwhich python  # Linux/Mac\n# Should show .venv path\n```"
+      }
+    },
+    {
+      "id": "error-access-denied",
+      "type": "OnError",
+      "description": "Odoo AccessDenied — check admin_passwd in config",
+      "matcher": {
+        "pattern": "AccessDenied|Access Denied|odoo\\.exceptions\\.AccessDenied|Invalid database name or password"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Access denied. Possible causes:\n\n1. Wrong master password (admin_passwd in .conf)\n   ```bash\n   # Check your .conf file\n   grep admin_passwd conf/[CONFIG].conf\n   ```\n\n2. Wrong database user password\n   ```bash\n   grep db_password conf/[CONFIG].conf\n   ```\n\n3. Odoo user password forgotten — reset via SQL:\n   ```bash\n   psql -U odoo -d [DATABASE] -c \"UPDATE res_users SET password='admin' WHERE login='admin';\"\n   ```\n\n4. Or use /odoo-db reset-admin:\n   ```\n   /odoo-db reset-admin --db [DATABASE] --password newpassword\n   ```"
+      }
+    },
+    {
+      "id": "error-database-not-exist",
+      "type": "OnError",
+      "description": "Database does not exist — suggest creating it",
+      "matcher": {
+        "pattern": "database .* does not exist|FATAL: database .* does not exist|OperationalError: FATAL"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Database does not exist. Create it first:\n\n```bash\n# Create database\ncreatedb -U odoo [DATABASE_NAME]\n\n# Or using plugin command\n/odoo-db create --db [DATABASE_NAME]\n\n# Then initialize Odoo in this database\npython -m odoo -c conf/[CONFIG].conf -d [DATABASE_NAME] -i base --stop-after-init\n```\n\nOr check your dbfilter in the .conf file matches your database name."
+      }
+    }
+  ]
+}

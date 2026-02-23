@@ -1,0 +1,23 @@
+{
+  "name": "odoo-service",
+  "version": "1.0.0",
+  "description": "Complete Odoo server lifecycle manager — start, stop, deploy, initialize, and manage Odoo across local venv, Docker, and any IDE (PyCharm, VSCode). Supports Odoo 14-19.",
+  "author": {
+    "name": "TaqaTechno",
+    "email": "contact@taqat-techno.com",
+    "url": "https://taqat-techno.com"
+  },
+  "homepage": "https://github.com/taqat-techno/plugins",
+  "license": "MIT",
+  "keywords": ["odoo", "deployment", "docker", "venv", "server", "database", "ide", "devops"],
+  "skills": ["./odoo-service"],
+  "commands": ["./commands"],
+  "hooks": "./hooks/hooks.json",
+  "metadata": {
+    "mode": "codebase",
+    "odoo-versions": ["14", "15", "16", "17", "18", "19"],
+    "environments": ["local-venv", "docker", "bare-python"],
+    "ide-support": ["pycharm", "vscode", "any"],
+    "categories": ["server-management", "deployment", "database", "docker", "ide-integration"]
+  }
+}
