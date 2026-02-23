@@ -440,3 +440,183 @@ class TestOrderWorkflow(TransactionCase):
 | `invalidate_cache()` | Yes | Yes | Deprecated | Removed | Removed | Removed |
 | `browser_js()` | Yes | Yes | Yes | Deprecated | Removed | Removed |
 | Tag `--test-tags` path format | No | No | Yes | Yes | Yes | Yes |
+
+---
+
+## CI Test Runner Patterns
+
+### Running Tests in GitHub Actions (Self-Hosted)
+
+```yaml
+# .github/workflows/2-test.yml
+services:
+  postgres:
+    image: postgres:15
+    env:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    options: >-
+      --health-cmd pg_isready
+      --health-interval 10s
+      --health-timeout 5s
+      --health-retries 5
+
+steps:
+  - name: Install system deps
+    run: |
+      sudo apt-get update -q
+      sudo apt-get install -yq \
+        libxml2-dev libxslt1-dev libpq-dev \
+        libldap2-dev libsasl2-dev node-less
+
+  - name: Install Python deps
+    run: pip install -r requirements.txt coverage
+
+  - name: Create test database
+    run: PGPASSWORD=odoo psql -h localhost -U odoo -c "CREATE DATABASE test_mymodule" postgres
+
+  - name: Run tests
+    run: |
+      python -m odoo \
+        --db_host=localhost --db_user=odoo --db_password=odoo \
+        -d test_mymodule \
+        --addons-path=odoo/addons,projects \
+        --test-enable --stop-after-init \
+        -i my_module \
+        --log-level=test 2>&1 | tee /tmp/test.log
+      grep -q "FAILED\|ERROR" /tmp/test.log && exit 1 || true
+```
+
+### Running Tests for Changed Modules Only (10x faster than `-u all`)
+
+```bash
+# Detect changed modules from git diff
+CHANGED=$(git diff --name-only HEAD~1 HEAD \
+  | grep "^projects/" \
+  | awk -F/ '{print $2}' \
+  | sort -u \
+  | tr '\n' ',')
+
+# Run only changed modules
+python -m odoo -c conf/myproject.conf -d mydb \
+  --test-enable --stop-after-init \
+  -u "${CHANGED%,}" \
+  --test-tags=post_install,standard
+```
+
+### Test Tags in CI
+
+```bash
+# Standard CI test run (most common)
+--test-tags=post_install,standard
+
+# Full test run (slower, for pre-release)
+--test-tags=post_install,at_install,standard
+
+# Module-specific only
+--test-tags=/my_module
+
+# Specific class
+--test-tags=/my_module:TestMyModel
+
+# Skip slow tests in CI
+--test-tags=standard,-slow
+```
+
+### Odoo.sh Test Configuration (`odoo_tests.cfg`)
+
+When using Odoo.sh (custom addons repo), place at repo root:
+
+```ini
+[options]
+test_enable = True
+test_tags = standard,at_install
+# Odoo.sh auto-installs all installable modules and runs tests on every push
+```
+
+### Detect Test Failures in CI Log
+
+Odoo writes test results to the log. Check for failures:
+
+```bash
+# These patterns indicate test failure
+grep -E "FAILED|ERROR|Traceback|AssertionError" /tmp/odoo_test.log
+
+# Odoo 17+ also prints summary
+# "Ran X tests in Y.Zs — FAILED (failures=N, errors=M)"
+grep -E "FAILED \(failures=" /tmp/odoo_test.log && exit 1
+
+# Check exit code (Odoo returns 0 even on test failures in some versions!)
+# Always grep the log for failure patterns
+```
+
+### Coverage in CI
+
+```bash
+# Run with coverage
+coverage run --source=projects/my_module \
+  -m odoo -c /tmp/test.conf -d test_mydb \
+  --test-enable --stop-after-init -i my_module
+
+# Report
+coverage report --include="projects/my_module/**" --fail-under=60
+
+# Upload to GitHub as artifact
+coverage html -d /tmp/coverage_report
+```
+
+### Python Version × Odoo Version Matrix for CI
+
+| Odoo | Python | PostgreSQL |
+|------|--------|-----------|
+| 14   | 3.8    | 13        |
+| 15   | 3.10   | 13        |
+| 16   | 3.10   | 14        |
+| 17   | 3.11   | 15        |
+| 18   | 3.12   | 15        |
+| 19   | 3.12   | 16        |
+
+---
+
+## Testing Approach Comparison
+
+Choose the right tool for what you're testing:
+
+| | TransactionCase | HttpCase | Playwright E2E |
+|---|---|---|---|
+| **What it tests** | Business logic, ORM, computed fields | HTTP routes, JSON-RPC, portal | Full UI workflows, JS interactions |
+| **Browser involved** | No | No | Yes (Chromium/Firefox) |
+| **Speed** | Fast (< 1s/test) | Medium (1-5s/test) | Slow (5-30s/test) |
+| **Requires live server** | No | Yes (auto-started) | Yes (separate process) |
+| **Best for** | Constraints, @api.depends, state machines | Controllers, website pages, auth | UX flows, drag-drop, dynamic UI |
+| **Odoo versions** | All (14-19) | All (14-19) | All (14-19) |
+| **CI complexity** | Simple (PostgreSQL only) | Medium (Odoo server needed) | High (Node.js + Odoo + browser) |
+
+### When to Use Each
+
+```
+New module with business logic?   → TransactionCase (always start here)
+REST API / controller endpoint?   → HttpCase + url_open / jsonrpc
+Portal page / website route?      → HttpCase + self.authenticate()
+Multi-step UI workflow?           → Playwright E2E
+JavaScript-heavy feature?         → Playwright E2E
+Visual regression?                → Playwright + screenshots
+Odoo.sh project QA?               → Playwright against staging URL
+```
+
+### Migration: `browser_js()` → Playwright
+
+`browser_js()` was deprecated in Odoo 17 and removed in Odoo 18+.
+
+| Old Odoo 14-16 | New Odoo 17-19 |
+|----------------|----------------|
+| `self.browser_js('/web', "web.tour.startTour('my_tour')")` | Playwright: `await page.goto('/web'); await page.evaluate("odoo.startTour('my_tour')")` |
+| `self.start_tour('/odoo/sales', 'sale_tour')` | Playwright full test file |
+| `phantom_js(...)` | Playwright full test file |
+
+**Note**: Odoo's JavaScript tour definitions (`.js` files with `web.tour.register`) still work in Odoo 17+.
+Only the Python `browser_js()` / `start_tour()` runner was removed. Tours can still be triggered
+via `page.evaluate()` in Playwright.

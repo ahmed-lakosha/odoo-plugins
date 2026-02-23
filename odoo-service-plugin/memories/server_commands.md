@@ -483,3 +483,76 @@ python -m odoo -c conf/myproject.conf -d mydb -u my_module --stop-after-init
 # 5. Restart server
 sudo systemctl start odoo17
 ```
+
+---
+
+## CI/CD Integration
+
+### Health Check Endpoint
+
+```bash
+# Odoo 16+ — built-in health endpoint
+curl -sf http://localhost:8069/web/health
+# Returns: {"status": "pass"}
+
+# Odoo 14/15 — no /web/health, use login page check
+curl -sf http://localhost:8069/web/login | grep -q "Odoo" || exit 1
+```
+
+### Pre-Deploy Database Backup (one-liner)
+
+```bash
+# Gzipped backup with timestamp
+pg_dump -U odoo mydb | gzip > /tmp/backup_$(date +%Y%m%d_%H%M%S).sql.gz
+
+# Restore if needed
+gunzip -c /tmp/backup_YYYYMMDD_HHMMSS.sql.gz | psql -U odoo mydb
+```
+
+### Post-Deploy Module Update (CI-safe)
+
+```bash
+# Update only changed modules (fast) — use in CI scripts
+CHANGED="module1,module2"
+python -m odoo -c conf/myproject.conf -d mydb \
+  -u "$CHANGED" --stop-after-init --log-level=warn
+
+# Detect changed modules from git diff
+CHANGED=$(git diff --name-only HEAD~1 HEAD \
+  | grep "^projects/" \
+  | awk -F/ '{print $2}' \
+  | sort -u | tr '\n' ',' | sed 's/,$//')
+python -m odoo -c conf/myproject.conf -d mydb \
+  -u "$CHANGED" --stop-after-init
+```
+
+### Odoo.sh: `requirements.txt` for Custom Addons
+
+When using Odoo.sh, place `requirements.txt` at the **repo root** (not inside a module):
+
+```
+# requirements.txt — Odoo.sh auto-installs this before loading your modules
+requests>=2.28.0
+pycryptodome>=3.15.0
+```
+
+Odoo.sh detects and installs it automatically. No Dockerfile needed.
+
+### GitHub Actions SSH Deployment (appleboy/ssh-action)
+
+```yaml
+- uses: appleboy/ssh-action@v1.2.0
+  with:
+    host: ${{ secrets.SERVER_HOST }}
+    username: ${{ secrets.SERVER_USER }}
+    key: ${{ secrets.SSH_PRIVATE_KEY }}
+    script: |
+      cd /opt/odoo
+      git pull origin main
+      python -m odoo -c conf/myproject.conf -d mydb \
+        -u my_module --stop-after-init
+      sudo systemctl restart odoo
+      curl -sf http://localhost:8069/web/health
+```
+
+> **See also**: `memories/deployment_patterns.md` for full deployment scripts with backup + rollback.
