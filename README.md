@@ -1,4 +1,4 @@
-# ☁️ Cloud Market — Odoo Plugins for Claude Code
+# ☁️ Odoo Marketplace — Odoo Plugins for Claude Code
 
 > **7 professional Odoo development plugins** for [Claude Code](https://claude.ai/code) — covering the full Odoo development lifecycle from upgrade migrations to testing, security, internationalization, and server lifecycle management.
 
@@ -12,7 +12,7 @@
 
 ```bash
 # Install all 7 Odoo plugins at once
-claude mcp add cloud-market https://github.com/ahmed-lakosha/odoo-upgrade-skill
+claude mcp add cloud-market [https://github.com/ahmed-lakosha/odoo-plugins.git]
 ```
 
 Or install individual plugins from the marketplace by referencing this repo.
