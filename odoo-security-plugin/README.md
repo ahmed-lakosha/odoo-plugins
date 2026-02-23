@@ -39,8 +39,8 @@ No installation needed. Run directly from the scripts directory:
 
 ```bash
 # Clone the repository
-git clone https://github.com/taqat-techno/odoo-security-plugin
-cd odoo-security-plugin
+git clone https://github.com/taqat-techno/plugins
+cd plugins/odoo-security-plugin
 
 # Run directly (Python 3.8+ required, no additional packages)
 python odoo-security/scripts/security_auditor.py /path/to/your/module
