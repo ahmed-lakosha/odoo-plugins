@@ -1,0 +1,142 @@
+{
+  "hooks": [
+    {
+      "id": "docker-compose-changed",
+      "type": "PostToolUse",
+      "description": "When docker-compose.yml is modified, suggest recreating containers",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/docker-compose*.yml"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "docker-compose file was modified. Recreate containers to apply changes:\n\n```bash\n# Recreate with updated config\ndocker-compose -f docker-compose.{project}.yml up -d\n\n# If service definitions changed\ndocker-compose -f docker-compose.{project}.yml down && docker-compose -f docker-compose.{project}.yml up -d\n\n# If Dockerfile changed\ndocker-compose -f docker-compose.{project}.yml up -d --build\n```"
+      }
+    },
+    {
+      "id": "dockerfile-changed",
+      "type": "PostToolUse",
+      "description": "When Dockerfile is modified, suggest rebuilding the image",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/Dockerfile*"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Dockerfile was modified. Rebuild the image to apply changes:\n\n```bash\n# Rebuild and restart\ndocker-compose build && docker-compose up -d\n\n# Clean rebuild (no cache)\ndocker-compose build --no-cache && docker-compose up -d\n\n# Or use plugin command\n/docker-build --version {VERSION}\n```"
+      }
+    },
+    {
+      "id": "nginx-conf-changed",
+      "type": "PostToolUse",
+      "description": "When nginx.conf is modified, suggest restarting nginx",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/nginx*.conf"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "nginx.conf was modified. Reload nginx to apply:\n\n```bash\n# Reload nginx config (no downtime)\ndocker-compose exec nginx nginx -s reload\n\n# Or restart nginx container\ndocker-compose restart nginx\n\n# Test config first\ndocker-compose exec nginx nginx -t\n```\n\nAlso ensure proxy_mode = True in odoo.conf when using nginx."
+      }
+    },
+    {
+      "id": "env-file-changed",
+      "type": "PostToolUse",
+      "description": "When .env is modified, suggest container restart",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/.env*"
+      },
+      "action": {
+        "type": "suggest",
+        "message": ".env file was modified. Recreate containers to apply new environment variables:\n\n```bash\ndocker-compose down && docker-compose up -d\n```\n\nNote: `docker-compose restart` does NOT pick up .env changes. You must `down` then `up`."
+      }
+    },
+    {
+      "id": "entrypoint-changed",
+      "type": "PostToolUse",
+      "description": "When entrypoint.sh is modified, remind about chmod +x and rebuild",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/entrypoint*.sh"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "entrypoint.sh was modified. Ensure it's executable and rebuild:\n\n```bash\n# Make executable (important!)\nchmod +x entrypoint.sh\n\n# Rebuild image (entrypoint is COPY'd into image)\ndocker-compose build && docker-compose up -d\n```\n\nIf the entrypoint is volume-mounted (not COPY'd), a container restart is sufficient."
+      }
+    },
+    {
+      "id": "odoo-conf-docker",
+      "type": "PostToolUse",
+      "description": "When an Odoo .conf file in Docker context is modified",
+      "matcher": {
+        "tool": ["Write", "Edit"],
+        "file_pattern": "**/conf/*.conf"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Odoo configuration file was modified. Restart the Odoo container:\n\n```bash\ndocker-compose restart odoo\n```\n\nKey settings to verify:\n- data_dir = /var/lib/odoo (CRITICAL)\n- workers >= 2 (production)\n- proxy_mode = True (behind nginx)\n- gevent_port = 8072 (v17+) or longpolling_port = 8072 (v14-16)"
+      }
+    },
+    {
+      "id": "error-port-allocated",
+      "type": "OnError",
+      "description": "Port already allocated — suggest stopping conflicting containers",
+      "matcher": {
+        "pattern": "port is already allocated|Bind for.*failed.*port is already allocated|address already in use|Error starting userland proxy"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Port conflict detected. Another container or process is using the same port.\n\nFix:\n```bash\n# Find what's using the port\ndocker ps --format 'table {{.Names}}\\t{{.Ports}}' | grep 8069\n\n# Stop conflicting containers\ndocker-compose down\n\n# Or change ports in .env\n# HTTP_PORT=8169\n\n# Windows: kill process on port\nnetstat -ano | findstr :8069\ntaskkill /PID {PID} /F\n\n# Linux: kill process on port\nlsof -ti:8069 | xargs kill -9\n```"
+      }
+    },
+    {
+      "id": "error-no-space",
+      "type": "OnError",
+      "description": "No space left on device — suggest Docker cleanup",
+      "matcher": {
+        "pattern": "no space left on device|ENOSPC|disk space|No space left"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Docker disk space exhausted.\n\nFix:\n```bash\n# Check what's using space\ndocker system df\n\n# Remove unused containers, networks, images\ndocker system prune -f\n\n# More aggressive (removes ALL unused images)\ndocker system prune -af\n\n# Remove unused volumes (WARNING: data loss)\ndocker volume prune -f\n\n# Check specific large images\ndocker images --format 'table {{.Repository}}:{{.Tag}}\\t{{.Size}}' | sort -k2 -h\n```"
+      }
+    },
+    {
+      "id": "error-502-bad-gateway",
+      "type": "OnError",
+      "description": "502 Bad Gateway — check Odoo container health and nginx upstream",
+      "matcher": {
+        "pattern": "502 Bad Gateway|upstream.*connect.*refused|no live upstreams"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "502 Bad Gateway — nginx cannot reach Odoo.\n\nDebug:\n```bash\n# 1. Check if Odoo container is running\ndocker ps | grep web\n\n# 2. Check Odoo health\ndocker exec {container} curl -sf http://localhost:8069/web/health\n\n# 3. Check Odoo logs for errors\ndocker logs {odoo_container} --tail 50\n\n# 4. Check nginx upstream config\ndocker exec {nginx_container} cat /etc/nginx/conf.d/default.conf | grep upstream\n\n# 5. Ensure containers are on same network\ndocker network inspect {network}\n```\n\nCommon causes:\n- Odoo still starting (check start_period in healthcheck)\n- Odoo crashed (check logs for Python errors)\n- Wrong upstream name in nginx.conf"
+      }
+    },
+    {
+      "id": "error-oom-killed",
+      "type": "OnError",
+      "description": "Container killed by OOM — suggest increasing resource limits",
+      "matcher": {
+        "pattern": "OOMKilled|Out of memory|Killed|memory limit|oom-kill"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Container killed by Out of Memory (OOM).\n\nFix in docker-compose:\n```yaml\nservices:\n  odoo:\n    deploy:\n      resources:\n        limits:\n          memory: 2G    # Increase this\n          cpus: '2.0'\n        reservations:\n          memory: 512M\n```\n\nAlso check odoo.conf:\n```ini\nlimit_memory_soft = 2147483648   ; 2 GB\nlimit_memory_hard = 2684354560   ; 2.5 GB\nworkers = 2                       ; Reduce if memory constrained\n```\n\nRun /docker-perf for detailed analysis."
+      }
+    },
+    {
+      "id": "error-source-not-found",
+      "type": "OnError",
+      "description": "Odoo source not found in container",
+      "matcher": {
+        "pattern": "Odoo source not found|No such file.*odoo-bin|No such file.*setup/odoo|ModuleNotFoundError.*odoo"
+      },
+      "action": {
+        "type": "suggest",
+        "message": "Odoo source code is not mounted correctly.\n\nCheck:\n```bash\n# 1. Verify source exists on host\nls -la sources/odoo-19/setup/odoo  # v19\nls -la sources/odoo-17/odoo-bin    # v14-18\n\n# 2. Check docker-compose volume mount\n# Should be: ./sources/odoo-19:/opt/odoo/source:ro\n\n# 3. Verify inside container\ndocker exec {container} ls -la /opt/odoo/source/\n```\n\nCommon fixes:\n- Clone Odoo source: git clone -b 19.0 git@github.com:taqat-techno/odoo.git sources/odoo-19\n- Fix volume path in docker-compose.yml"
+      }
+    }
+  ]
+}

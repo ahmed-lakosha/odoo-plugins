@@ -1,0 +1,61 @@
+# Development Docker Compose Template for Odoo
+# Replace all {placeholders} before use
+#
+# Placeholders:
+#   {postgres_image}  - e.g., postgres:15
+#   {version}         - e.g., 19
+#   {project_name}    - e.g., relief_center
+
+services:
+  db:
+    image: {postgres_image}
+    container_name: {project_name}_{version}_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    volumes:
+      - {project_name}_{version}_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo} -d ${POSTGRES_DB:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  odoo:
+    build: .
+    container_name: {project_name}_{version}_web
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/opt/odoo/source:ro
+      - ./projects:/opt/odoo/custom-addons
+      - ./conf/{project_name}.conf:/etc/odoo/odoo.conf:ro
+      - ./logs:/var/log/odoo
+      - {project_name}_{version}_data:/var/lib/odoo
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+      # Uncomment for remote debugger (set ENABLE_DEBUGGER=1 in .env):
+      # - "5678:5678"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      DEV_MODE: ${DEV_MODE:-0}
+      ENABLE_DEBUGGER: ${ENABLE_DEBUGGER:-0}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8069/web/health || curl -sf http://localhost:8069/web/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+
+volumes:
+  {project_name}_{version}_db_data:
+  {project_name}_{version}_data:

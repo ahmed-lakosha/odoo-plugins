@@ -1,0 +1,62 @@
+# Odoo Configuration for Docker
+# Replace all {placeholders} before use
+#
+# Placeholders:
+#   {project_name}              - e.g., relief_center
+#   {addons_paths}              - e.g., /opt/odoo/custom-addons/relief_center
+#   {gevent_or_longpolling_key} - gevent_port (v17+) or longpolling_port (v14-16)
+#   {admin_password}            - Master password (use strong password for production)
+
+[options]
+; --- Database ---
+db_host = db
+db_port = 5432
+db_user = odoo
+db_password = odoo
+db_name = {project_name}
+admin_passwd = {admin_password}
+
+; --- Addons ---
+addons_path = /opt/odoo/source/odoo/addons,{addons_paths}
+
+; --- Network ---
+http_port = 8069
+http_interface = 0.0.0.0
+{gevent_or_longpolling_key} = 8072
+
+; --- Database Filtering ---
+dbfilter = {project_name}.*
+list_db = True
+
+; --- Data & Logging ---
+; CRITICAL: Without data_dir, filestore is ephemeral and JS assets return HTTP 500
+data_dir = /var/lib/odoo
+logfile = /var/log/odoo/odoo.log
+log_level = info
+
+; --- Performance ---
+; workers = 0  → Dev only (single-threaded, 10s response at 50 users)
+; workers = 2  → Minimum production
+; workers = 4  → Heavy load
+; Formula: (CPU cores * 2) + 1, capped by RAM / 512MB per worker
+workers = 0
+max_cron_threads = 1
+db_maxconn = 16
+
+; --- Resource Limits ---
+limit_time_cpu = 600
+limit_time_real = 1200
+limit_memory_soft = 2147483648
+limit_memory_hard = 2684354560
+
+; --- Security ---
+; Set proxy_mode = True when behind nginx
+proxy_mode = False
+
+; =============================================================
+; PRODUCTION OVERRIDES (uncomment for production):
+; =============================================================
+; workers = 2
+; proxy_mode = True
+; list_db = False
+; admin_passwd = <strong-32-char-password>

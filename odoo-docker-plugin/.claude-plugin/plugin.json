@@ -1,0 +1,42 @@
+{
+  "name": "odoo-docker",
+  "version": "1.0.0",
+  "description": "Docker infrastructure manager for Odoo — production deployment with nginx, CI/CD pipelines, performance tuning, multi-version image management, container debugging, and centralized workspace orchestration for Odoo 14-19 Enterprise.",
+  "author": {
+    "name": "TaqaTechno",
+    "email": "info@taqatechno.com",
+    "url": "https://github.com/taqat-techno"
+  },
+  "homepage": "https://github.com/taqat-techno/plugins",
+  "repository": "https://github.com/taqat-techno/plugins",
+  "license": "MIT",
+  "keywords": [
+    "odoo",
+    "docker",
+    "nginx",
+    "deployment",
+    "infrastructure",
+    "ci-cd",
+    "performance",
+    "docker-compose",
+    "production",
+    "debugging",
+    "multi-version"
+  ],
+  "skills": ["./odoo-docker"],
+  "commands": ["./commands"],
+  "hooks": "./hooks/hooks.json",
+  "metadata": {
+    "mode": "codebase",
+    "odoo-versions": ["14", "15", "16", "17", "18", "19"],
+    "categories": [
+      "docker",
+      "infrastructure",
+      "deployment",
+      "nginx",
+      "ci-cd",
+      "performance-tuning",
+      "troubleshooting"
+    ]
+  }
+}
