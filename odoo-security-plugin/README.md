@@ -1,4 +1,4 @@
-# Odoo Security Plugin
+# Odoo Security Plugin (v2.0)
 
 A comprehensive security auditing plugin for Odoo modules (versions 14-19). Performs static analysis across all security layers: model access rules, HTTP route authentication, sudo() usage patterns, SQL injection risks, and record rule completeness.
 
@@ -61,7 +61,36 @@ python "C:\TQ-WorkSpace\odoo\tmp\plugins\odoo-security-plugin\odoo-security\scri
     "C:\TQ-WorkSpace\odoo\odoo17\projects\my_project\my_module"
 ```
 
-### Run Individual Auditors
+### Unified Command (v2.0)
+
+In v2.0, all security checks are accessible through a single `/odoo-security` command with `--layer` and `--severity` flags:
+
+```bash
+# Full audit (all layers, all severities)
+/odoo-security /path/to/module
+
+# Audit only access rules, show HIGH+ issues
+/odoo-security /path/to/module --layer access --severity HIGH
+
+# Audit only routes layer
+/odoo-security /path/to/module --layer routes
+
+# Audit only sudo usage, CRITICAL only
+/odoo-security /path/to/module --layer sudo --severity CRITICAL
+```
+
+### Natural Language
+
+You can also trigger security audits using plain English. The skill recognizes intent from your request:
+
+- "Check if all models have proper access rules in my module"
+- "Audit HTTP routes in my module for authentication issues"
+- "Find all places where sudo() is used without proper context"
+- "Run a complete security audit on my HR module"
+
+The AI will determine which layers to check and what severity threshold to apply based on your request.
+
+### Run Individual Auditors (Legacy)
 
 ```bash
 # Check model access rules only
@@ -73,6 +102,12 @@ python odoo-security/scripts/route_auditor.py /path/to/module
 # Find sudo() usage and classify risk
 python odoo-security/scripts/sudo_finder.py /path/to/module
 ```
+
+---
+
+### Migration Note (v1.x to v2.0)
+
+The individual slash commands (`/check-access`, `/check-routes`, `/find-sudo`, `/security-audit`) from v1.x still work but are now aliases for `/odoo-security --layer <layer>`. New projects should use the unified `/odoo-security` command or natural language triggers.
 
 ---
 

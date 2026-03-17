@@ -8,6 +8,7 @@ Comprehensive Odoo testing toolkit for Claude Code. Generates test skeletons, ru
 - **Test Runner** - Colored PASS/FAIL output with JUnit XML and JSON report generation
 - **Mock Data Factory** - Realistic field-type-aware fixture generation for test setUp methods
 - **Coverage Reporter** - Identifies untested methods with per-model and overall coverage percentages
+- **E2E Testing** - Playwright-based end-to-end test generation for Odoo web interfaces
 - **Smart Hooks** - PostToolUse hooks that suggest tests when models, constraints, or routes are added
 - **Azure DevOps Integration** - JUnit XML output compatible with `PublishTestResults@2` task
 
@@ -30,25 +31,35 @@ The plugin is auto-loaded by Claude Code when the `.claude-plugin/plugin.json` i
 
 ## Quick Start
 
-### 1. Generate a Test File for a Model
+### 1. Full Testing Workflow (recommended)
 
 ```
-/test-generate sale.order --module /c/odoo/odoo17/projects/myproject/my_module
+/odoo-test my_module --config conf/project17.conf --database project17
 ```
 
-Reads the model's Python source, detects field types, and creates:
-```
-my_module/tests/test_sale_order.py
-my_module/tests/__init__.py  (if missing)
+Runs coverage analysis, generates missing test skeletons, executes the test suite, and reports results.
+
+### 2. Sub-commands
+
+```bash
+# Generate test skeleton for a model
+/odoo-test generate sale.order --module /c/odoo/odoo17/projects/myproject/my_module
+
+# Run tests for a module
+/odoo-test run my_module --config conf/project17.conf --database project17
+
+# Check test coverage
+/odoo-test coverage /c/odoo/odoo17/projects/myproject/my_module
+
+# Generate mock data fixtures
+/odoo-test data --model res.partner --count 5
+
+# Generate Playwright E2E tests
+/odoo-test e2e my_module --base-url http://localhost:8069
 ```
 
-### 2. Run Tests for a Module
+### 3. Sample Output
 
-```
-/test-run my_module --config conf/project17.conf --database project17
-```
-
-Output:
 ```
 PASS  my_module.tests.test_my_model.TestMyModel.test_create_minimal
 PASS  my_module.tests.test_my_model.TestMyModel.test_write_name
@@ -57,38 +68,29 @@ FAIL  my_module.tests.test_my_model.TestMyModel.test_constraint_amount
 Total Tests: 3 | Passed: 2 | Failed: 1 | Duration: 4.23s
 ```
 
-### 3. Check Test Coverage
+---
 
-```
-/test-coverage /c/odoo/odoo17/projects/myproject/my_module
-```
+## Natural Language
 
-Shows coverage percentage per model and lists untested methods.
+You do not need to memorize sub-command syntax. The skill responds to plain English:
 
-### 4. Generate Mock Data Fixtures
-
-```
-/test-data --model res.partner --count 5
-/test-data --model hr.employee --count 3 --format setup_method
-```
-
-Produces Python code ready to paste into `setUpClass()`.
-
-### 5. Full Testing Workflow
-
-```
-/odoo-test my_module --config conf/project17.conf --database project17
-```
-
-Runs coverage analysis, generates missing test skeletons, executes the test suite, and reports results.
+| What you say | What happens |
+|---|---|
+| "Generate test cases for my sale.order extension" | Analyzes model and generates TransactionCase skeletons |
+| "Create realistic mock data for testing my inventory module" | Produces a mock data factory with realistic records |
+| "Run tests for my custom module with post_install tag" | Executes the suite with `--test-enable` and `--test-tags=post_install` |
+| "Show me which parts of my module have no test coverage" | Scans for untested models/methods and produces a coverage report |
+| "Generate Playwright E2E tests for my Odoo module" | Creates Playwright test files for login, navigation, and form flows |
+| "What tests are missing for my_module?" | Runs coverage analysis and lists gaps |
+| "Test the sale order customization" | Detects the module and runs its test suite |
 
 ---
 
-## Commands Reference
+## Command Reference
 
 ### `/odoo-test <module> [options]`
 
-Full testing workflow: discover module, analyze coverage, optionally generate tests, run suite, report.
+The single entry point. Without a sub-command, runs the full workflow (coverage + generate + run + report).
 
 | Option | Description | Default |
 |--------|-------------|---------|
@@ -100,25 +102,18 @@ Full testing workflow: discover module, analyze coverage, optionally generate te
 | `--threshold N` | Fail if coverage below N% | 0 |
 | `--output FILE` | Save report to file | stdout |
 
-### `/test-generate <model> [options]`
+### Sub-commands
+
+#### `generate <model> [options]`
 
 Generate a complete `TransactionCase` test skeleton for an Odoo model.
 
 ```bash
-# Basic usage (generic skeleton)
-/test-generate my.model
-
-# With module path (enables field type detection)
-/test-generate my.model --module /c/odoo/odoo17/projects/myproject/my_module
-
-# Preview without writing to disk
-/test-generate my.model --module /path/to/module --dry-run
-
-# Overwrite existing file
-/test-generate my.model --module /path/to/module --force
-
-# Custom output location
-/test-generate my.model --module /path/to/module --output /custom/path/test_my.py
+/odoo-test generate my.model
+/odoo-test generate my.model --module /path/to/module
+/odoo-test generate my.model --module /path/to/module --dry-run
+/odoo-test generate my.model --module /path/to/module --force
+/odoo-test generate my.model --module /path/to/module --output /custom/path/test_my.py
 ```
 
 Generated files include:
@@ -131,76 +126,53 @@ Generated files include:
 - Action method stubs (for all `action_*` methods)
 - Multi-record batch creation test
 
-### `/test-run <module> [options]`
+#### `run <module> [options]`
 
 Execute Odoo module tests with colored terminal output.
 
 ```bash
-# Run all tests
-/test-run my_module --config conf/project17.conf --database project17
-
-# Filter by tag
-/test-run my_module --config conf/project17.conf --database project17 --tags post_install
-
-# Specific test class
-/test-run my_module --config conf/project17.conf --database project17 --test-class TestMyModel
-
-# Specific method
-/test-run my_module --config conf/project17.conf --database project17 \
-    --test-class TestMyModel --test-method test_create_order
-
-# Show full Odoo logs
-/test-run my_module --config conf/project17.conf --database project17 --show-logs
-
-# Generate JUnit XML
-/test-run my_module --config conf/project17.conf --database project17 \
-    --output test_results.xml --output-format junit
-
-# Generate JSON report
-/test-run my_module --config conf/project17.conf --database project17 \
-    --output report.json --output-format json
+/odoo-test run my_module --config conf/project17.conf --database project17
+/odoo-test run my_module --tags post_install
+/odoo-test run my_module --test-class TestMyModel
+/odoo-test run my_module --test-class TestMyModel --test-method test_create_order
+/odoo-test run my_module --show-logs
+/odoo-test run my_module --output test_results.xml --output-format junit
+/odoo-test run my_module --output report.json --output-format json
 ```
 
-### `/test-coverage <module_path> [options]`
+#### `coverage <module_path> [options]`
 
 Analyze test coverage for an Odoo module.
 
 ```bash
-# Terminal report
-/test-coverage /c/odoo/odoo17/projects/myproject/my_module
-
-# With coverage threshold (exit code 1 if below)
-/test-coverage /c/odoo/odoo17/projects/myproject/my_module --threshold 80
-
-# JSON report for CI/CD
-/test-coverage /path/to/module --format json --output coverage.json
-
-# HTML report for team sharing
-/test-coverage /path/to/module --format html --output coverage.html
+/odoo-test coverage /path/to/module
+/odoo-test coverage /path/to/module --threshold 80
+/odoo-test coverage /path/to/module --format json --output coverage.json
+/odoo-test coverage /path/to/module --format html --output coverage.html
 ```
 
-### `/test-data --model <model> [options]`
+#### `data --model <model> [options]`
 
 Generate realistic mock data Python code for test fixtures.
 
 ```bash
-# 5 partners with realistic names, emails, addresses
-/test-data --model res.partner --count 5
+/odoo-test data --model res.partner --count 5
+/odoo-test data --model sale.order --count 3
+/odoo-test data --model my.model --count 10 --module /path/to/module
+/odoo-test data --model my.model --count 5 --format individual
+/odoo-test data --model my.model --count 5 --format create_list
+/odoo-test data --model my.model --count 50 --format loop
+/odoo-test data --model my.model --count 5 --format setup_method
+/odoo-test data --model hr.employee --count 10 --output setup_fixtures.py
+```
 
-# Sale orders with line items
-/test-data --model sale.order --count 3
+#### `e2e <module> [options]`
 
-# Custom model with field detection
-/test-data --model my.model --count 10 --module /path/to/module
+Generate Playwright end-to-end tests for an Odoo module's web interface.
 
-# Formats
-/test-data --model my.model --count 5 --format individual   # One create() per record
-/test-data --model my.model --count 5 --format create_list  # Batch create([...])
-/test-data --model my.model --count 50 --format loop        # for loop
-/test-data --model my.model --count 5 --format setup_method # Full setUpClass() snippet
-
-# Save to file
-/test-data --model hr.employee --count 10 --output setup_fixtures.py
+```bash
+/odoo-test e2e my_module --base-url http://localhost:8069
+/odoo-test e2e my_module --base-url http://localhost:8069 --output tests/e2e/
 ```
 
 ---
@@ -212,71 +184,41 @@ Scripts can be run standalone without Claude Code.
 ### `test_generator.py`
 
 ```bash
-# Generate test for known model
 python test_generator.py --model sale.order --module /path/to/module
-
-# Dry run (print to stdout)
 python test_generator.py --model my.model --module /path/to/module --dry-run
-
-# Force overwrite
 python test_generator.py --model my.model --module /path/to/module --force
-
-# Custom output path
 python test_generator.py --model my.model --module /path/to/module --output /path/test_my.py
 ```
 
 ### `test_runner.py`
 
 ```bash
-# Basic run
 python test_runner.py --module my_module --config conf/project17.conf --database project17
-
-# With tag filter
 python test_runner.py --module my_module --config conf/p17.conf --database db17 --tags post_install
-
-# Specific class and method
 python test_runner.py --module my_module --config conf/p17.conf --database db17 \
     --test-class TestMyModel --test-method test_create
-
-# JUnit XML for Azure DevOps
 python test_runner.py --module my_module --config conf/p17.conf --database db17 \
     --output test_results.xml --output-format junit
-
-# Show full Odoo output
 python test_runner.py --module my_module --config conf/p17.conf --database db17 --show-logs
 ```
 
 ### `mock_data_factory.py`
 
 ```bash
-# Known model (uses pre-built template)
 python mock_data_factory.py --model res.partner --count 5
-
-# Custom model with field detection
 python mock_data_factory.py --model my.model --count 10 --module /path/to/module
-
-# Different output formats
 python mock_data_factory.py --model my.model --count 5 --format create_list
 python mock_data_factory.py --model my.model --count 50 --format loop
 python mock_data_factory.py --model my.model --count 5 --format setup_method
-
-# Write to file
 python mock_data_factory.py --model hr.employee --count 5 --output fixtures.py
 ```
 
 ### `coverage_reporter.py`
 
 ```bash
-# Terminal report
 python coverage_reporter.py --module /path/to/my_module
-
-# JSON output
 python coverage_reporter.py --module /path/to/my_module --format json --output coverage.json
-
-# HTML output
 python coverage_reporter.py --module /path/to/my_module --format html --output coverage.html
-
-# CI gate (exit code 1 if below threshold)
 python coverage_reporter.py --module /path/to/my_module --threshold 80
 ```
 
@@ -337,7 +279,7 @@ This plugin works alongside the `devops-plugin` for full CI/CD workflows:
 
 ```
 # 1. Run tests and generate JUnit XML
-/test-run my_module --config conf/project17.conf --database project17 \
+/odoo-test run my_module --config conf/project17.conf --database project17 \
     --output test_results.xml --output-format junit
 
 # 2. Post to Azure DevOps (using devops-plugin)
@@ -364,7 +306,7 @@ The plugin's PostToolUse hooks automatically suggest testing actions when:
 
 | Trigger | Suggestion |
 |---------|-----------|
-| New `.py` file in `models/` | `/test-generate <model.name>` |
+| New `.py` file in `models/` | `/odoo-test generate <model.name>` |
 | `__manifest__.py` created/modified | Install and run tests command |
 | `ir.model.access.csv` created | Security access control tests |
 | `@api.constrains` added | Constraint test pattern |
@@ -387,6 +329,24 @@ The plugin's PostToolUse hooks automatically suggest testing actions when:
 | --test-tags path syntax | No | No | Yes | Yes | Yes | Yes |
 | invalidate_recordset() | No | No | Yes | Yes | Yes | Yes |
 | browser_js() | Yes | Yes | Yes | Dep | - | - |
+
+---
+
+## Migrating from v1.x
+
+In v1.x the plugin exposed five separate slash commands (`/test-generate`, `/test-run`, `/test-coverage`, `/test-data`, `/e2e-test`). In v2.0 these are consolidated under a single `/odoo-test` command with sub-commands:
+
+| v1.x command | v2.0 equivalent |
+|---|---|
+| `/test-generate my.model` | `/odoo-test generate my.model` |
+| `/test-run my_module` | `/odoo-test run my_module` |
+| `/test-coverage /path` | `/odoo-test coverage /path` |
+| `/test-data --model m` | `/odoo-test data --model m` |
+| `/e2e-test my_module` | `/odoo-test e2e my_module` |
+
+The standalone `/odoo-test my_module` (no sub-command) still runs the full workflow as before. All options remain the same within each sub-command.
+
+Natural language continues to work unchanged -- describe what you need and the skill routes to the correct sub-command automatically.
 
 ---
 
@@ -432,10 +392,10 @@ record.invalidate_recordset(['computed_field'])  # Odoo 16+
 
 ## License
 
-MIT — See plugin.json for full license information.
+MIT -- See plugin.json for full license information.
 
 ## Author
 
-TaqaTechno — support@example.com
+TaqaTechno -- support@example.com
 
 https://github.com/taqat-techno/plugins/tree/main/odoo-test-plugin

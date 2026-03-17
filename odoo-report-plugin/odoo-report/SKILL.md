@@ -24,6 +24,48 @@ description: |
   assistant: "I will use the odoo-report skill to diagnose the template body_html field, check subtype_id, and verify the mail.template arch is structured correctly for HTML rendering."
   <commentary>Debugging trigger - email template not rendering correctly.</commentary>
   </example>
+
+  <example>
+  Context: User wants to analyze a template
+  user: "Analyze this email template for issues and improvements"
+  assistant: "I will use the odoo-report skill to check template structure, context variables, rendering patterns, and suggest improvements."
+  <commentary>Analyze trigger - template quality review.</commentary>
+  </example>
+
+  <example>
+  Context: User's template isn't rendering correctly
+  user: "Debug why my email template shows plain text instead of HTML"
+  assistant: "I will diagnose the template body_html field, check subtype_id, and verify the mail.template arch for HTML rendering."
+  <commentary>Debug trigger - template rendering issue diagnosis.</commentary>
+  </example>
+
+  <example>
+  Context: User wants automatic fixes
+  user: "Fix common issues in my email template"
+  assistant: "I will apply safe transformations to fix encoding, missing fields, broken QWeb expressions, and version-specific syntax."
+  <commentary>Fix trigger - auto-fix template issues.</commentary>
+  </example>
+
+  <example>
+  Context: User wants pre-deployment validation
+  user: "Validate my QWeb report template before deployment"
+  assistant: "I will check syntax, context variable usage, security patterns, and version compatibility."
+  <commentary>Validate trigger - pre-deployment template check.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to see templates
+  user: "List all email templates for sale.order in my module"
+  assistant: "I will scan the module for mail.template and ir.actions.report records targeting the sale.order model."
+  <commentary>List trigger - template discovery.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to preview output
+  user: "Preview this email template with sample data"
+  assistant: "I will generate a preview using the template's QWeb expressions with realistic sample context variables."
+  <commentary>Preview trigger - template output preview.</commentary>
+  </example>
 version: "2.0.0"
 author: "TaqaTechno"
 license: "LGPL-3"
@@ -52,6 +94,10 @@ metadata:
 # Odoo Email Templates & QWeb Reports Skill (v2.0)
 
 A comprehensive skill for creating, managing, debugging, and migrating Odoo email templates and QWeb reports across versions 14-19. Features wkhtmltopdf configuration, Arabic/RTL support, bilingual report patterns, and intelligent version-aware syntax.
+
+> **v2.0 Architecture**: Analyze, debug, fix, validate, list, and preview are handled via natural language.
+> For creating templates and reports, use `/odoo-report create-email` or `/odoo-report create-report`.
+> For migration, use `/odoo-report migrate`.
 
 ## Configuration
 

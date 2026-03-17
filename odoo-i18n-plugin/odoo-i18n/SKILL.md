@@ -24,7 +24,35 @@ description: |
   assistant: "I will use the odoo-i18n skill to compare the ar.po file against the .pot template and report all untranslated or fuzzy entries with their source context."
   <commentary>Validation trigger - finding translation completeness gaps.</commentary>
   </example>
-version: "1.0.0"
+
+  <example>
+  Context: User needs to extract translatable strings
+  user: "Extract all translatable strings from my Odoo module"
+  assistant: "I will use the odoo-i18n skill to scan Python _() calls, XML translate attributes, and field strings to generate a .pot file."
+  <commentary>Extract trigger - translation string extraction.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to validate a translation file
+  user: "Validate my Arabic .po file for errors"
+  assistant: "I will use the odoo-i18n skill to check syntax, encoding, empty translations, fuzzy entries, and RTL-specific issues."
+  <commentary>Validate trigger - .po file validation.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to find missing translations
+  user: "Find all strings missing Arabic translation in my module"
+  assistant: "I will compare the .pot template against ar.po and report all untranslated or fuzzy entries."
+  <commentary>Missing trigger - translation gap analysis.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to export translations
+  user: "Export translations for my module using Odoo CLI"
+  assistant: "I will use the odoo-i18n skill to run the Odoo export command and generate the .po file."
+  <commentary>Export trigger - Odoo CLI translation export.</commentary>
+  </example>
+version: "2.0.0"
 author: "TaqaTechno"
 license: "MIT"
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
@@ -36,6 +64,8 @@ metadata:
 ---
 
 # Odoo i18n Skill — Complete Internationalization Reference
+
+> **v2.0 Architecture**: All i18n operations available as `/odoo-i18n` sub-commands or via natural language.
 
 This skill provides deep expertise in Odoo internationalization (i18n) and localization (l10n). It covers extracting translatable strings, validating .po files, generating translation reports, and handling Arabic/RTL layouts across Odoo versions 14 through 19.
 

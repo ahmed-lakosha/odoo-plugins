@@ -24,6 +24,13 @@ description: |
   assistant: "I will use the odoo-upgrade skill to convert legacy rpc.query() calls to the fetch-based JSON-RPC pattern required in Odoo 18+."
   <commentary>Frontend-specific migration trigger.</commentary>
   </example>
+
+  <example>
+  Context: User needs data migration scripts
+  user: "Generate migration scripts for upgrading my module from Odoo 17 to 19"
+  assistant: "I will create pre-migrate.py and post-migrate.py scripts handling field renames, data transformations, and cleanup."
+  <commentary>Data migration trigger - generates migration script templates.</commentary>
+  </example>
 version: "4.0.0"
 author: "TAQAT Techno"
 license: "MIT"
@@ -807,6 +814,218 @@ Generate comprehensive reports documenting:
 - Testing status
 - Known issues
 - Rollback instructions
+
+## Data Migration Scripts
+
+When upgrading Odoo modules between versions, schema and data changes often require migration scripts that run automatically during the upgrade process. Odoo supports three migration script stages, each executing at a different point in the module update lifecycle.
+
+### Migration Script Structure
+
+```
+module_name/
+└── migrations/
+    └── 17.0.2.0.0/        # Target version
+        ├── pre-migrate.py   # Before module update
+        ├── post-migrate.py  # After module update
+        └── end-migrate.py   # After all modules updated
+```
+
+The directory name under `migrations/` must match the **new version** in `__manifest__.py`. Odoo compares the installed version against this directory name to determine which scripts to run.
+
+### pre-migrate.py — Before Module Update
+
+Runs **before** the ORM applies schema changes from the updated module code. Use this to rename fields/columns, back up data before field type changes, and prepare the database for the new schema.
+
+```python
+import logging
+from odoo import SUPERUSER_ID, api
+
+_logger = logging.getLogger(__name__)
+
+def migrate(cr, version):
+    """Pre-migration: runs BEFORE module update."""
+    if not version:
+        return
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    _logger.info("Pre-migrating module_name from %s", version)
+
+    # Rename column (avoid ORM, use raw SQL)
+    cr.execute("ALTER TABLE my_table RENAME COLUMN old_name TO new_name")
+
+    # Backup data before field type change
+    cr.execute("""
+        CREATE TABLE IF NOT EXISTS _backup_my_table AS
+        SELECT id, field_to_change FROM my_table
+    """)
+```
+
+**Key rules for pre-migrate:**
+- The ORM has NOT loaded the new model definitions yet — use raw SQL only
+- Do NOT use `env['model'].search()` for models whose schema is about to change
+- Always guard with `if not version: return` to skip on fresh installs
+- Column renames prevent data loss when the ORM would otherwise drop + recreate
+
+### post-migrate.py — After Module Update
+
+Runs **after** the ORM has applied all schema changes from the updated code. The new fields, models, and views are now in place. Use this to transform data, populate new fields, and recompute stored values.
+
+```python
+import logging
+from odoo import SUPERUSER_ID, api
+
+_logger = logging.getLogger(__name__)
+
+def migrate(cr, version):
+    """Post-migration: runs AFTER module update."""
+    if not version:
+        return
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    _logger.info("Post-migrating module_name from %s", version)
+
+    # Convert Selection field values to Many2one references
+    for record in env['my.model'].search([]):
+        if record.old_selection_field == 'value_a':
+            record.new_m2o_field = env.ref('module.record_a')
+
+    # Recompute stored computed fields
+    env['my.model'].search([])._compute_computed_field()
+
+    # Populate a new required field with defaults
+    cr.execute("""
+        UPDATE my_table SET new_field = 'default_value'
+        WHERE new_field IS NULL
+    """)
+```
+
+**Key rules for post-migrate:**
+- The ORM is fully loaded — you can use `env['model'].search()` and `env.ref()`
+- For large datasets, prefer raw SQL over ORM loops for performance
+- Recompute stored fields that depend on changed data
+- Use `env.ref()` to look up XML IDs for Many2one mappings
+
+### end-migrate.py — After All Modules Updated
+
+Runs **after all modules** in the upgrade batch have been updated. Use this for cross-module cleanup, dropping backup tables, and removing obsolete data.
+
+```python
+import logging
+from odoo import SUPERUSER_ID, api
+
+_logger = logging.getLogger(__name__)
+
+def migrate(cr, version):
+    """End-migration: runs AFTER ALL modules updated."""
+    if not version:
+        return
+    _logger.info("End-migrating module_name from %s", version)
+
+    # Drop backup tables
+    cr.execute("DROP TABLE IF EXISTS _backup_my_table")
+
+    # Clean up obsolete ir.model.data
+    cr.execute("""
+        DELETE FROM ir_model_data
+        WHERE module = 'old_module' AND name = 'old_record'
+    """)
+
+    # Remove orphaned records from renamed models
+    cr.execute("""
+        DELETE FROM ir_model WHERE model = 'old.model.name'
+    """)
+```
+
+### Common Migration Patterns
+
+| Pattern | Pre-Migrate | Post-Migrate |
+|---------|------------|-------------|
+| Field rename | `ALTER TABLE RENAME COLUMN` | Update views referencing old name |
+| Selection to Many2one | Backup selection values | Map values to new records |
+| Char to Html | Nothing | `fields.html_sanitize()` on all records |
+| Model rename | Rename table + update ir_model_data | Update all foreign keys |
+| Field removal | Backup data if needed | Nothing (or archive records) |
+| Add required field | Nothing | Populate with defaults before constraint applies |
+| Merge two fields | Backup both columns | Combine values into target field |
+| Change field type | Backup column, drop column | Recreate with new type, restore data |
+
+### Using openupgradelib
+
+The `openupgradelib` package provides battle-tested helper functions for common migration operations. Install with `pip install openupgradelib`.
+
+```python
+from openupgradelib import openupgrade
+
+def migrate(cr, version):
+    if not version:
+        return
+
+    # Rename fields (handles ir.model.fields + column rename)
+    openupgrade.rename_fields(cr, [
+        ('model.name', 'model_name', 'old_field', 'new_field'),
+    ])
+
+    # Rename models (handles table, ir_model, ir_model_data, relations)
+    openupgrade.rename_models(cr, [
+        ('old.model', 'new.model'),
+    ])
+
+    # Rename XML IDs
+    openupgrade.rename_xmlids(cr, [
+        ('old_module.old_id', 'new_module.new_id'),
+    ])
+
+    # Safely rename columns (checks existence first)
+    openupgrade.rename_columns(cr, {
+        'table_name': [('old_column', 'new_column')],
+    })
+
+    # Log a removed field for later data recovery
+    openupgrade.logged_query(cr, """
+        UPDATE my_table SET new_field = old_field
+    """)
+```
+
+**Common openupgradelib functions:**
+- `rename_fields()` — Rename fields with full metadata update
+- `rename_models()` — Rename models including all references
+- `rename_xmlids()` — Rename external IDs across modules
+- `rename_columns()` — Safe column rename with existence check
+- `logged_query()` — Execute SQL with row count logging
+- `column_exists()` — Check if a column exists before operating
+- `table_exists()` — Check if a table exists before operating
+- `update_module_moved_fields()` — Handle fields moved between modules
+
+### Version-Specific Migration Notes
+
+**Odoo 17 to 18:**
+- Owl v1 to v2 lifecycle changes do not require data migration
+- `view_type` field removal from `ir.actions.act_window` may need cleanup
+
+**Odoo 18 to 19:**
+- `tree` to `list` rename: Update any stored view references in `ir.ui.view`
+- `kanban-box` to `card`: No data migration needed (template only)
+- `numbercall` removal from `ir.cron`: Clean up in post-migrate
+- Portal template XPath changes: No data migration, but test inherited views
+
+### Debugging Migration Scripts
+
+```bash
+# Run upgrade with verbose logging
+python -m odoo -d DB -u module_name --stop-after-init --log-level=debug
+
+# Test migration without committing (Odoo 16+)
+python -m odoo -d DB -u module_name --stop-after-init --test-enable
+
+# Check installed module version
+python -m odoo shell -d DB
+>>> self.env['ir.module.module'].search([('name','=','module_name')]).installed_version
+```
+
+**Tips:**
+- Always test migrations on a copy of the production database
+- Keep backup tables until you verify the migration succeeded in production
+- Use `_logger.info()` liberally so you can trace execution in logs
+- If a migration fails mid-way, fix the script and re-run — Odoo will retry
+- Migration scripts must be idempotent when possible (safe to run twice)
 
 ## References
 

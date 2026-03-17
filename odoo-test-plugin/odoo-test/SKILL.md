@@ -24,7 +24,42 @@ description: |
   assistant: "I will use the odoo-test skill to scan the module for untested models, methods, and views, then generate a coverage report with priority recommendations."
   <commentary>Coverage analysis trigger - finding gaps in the test suite.</commentary>
   </example>
-version: "1.0.0"
+
+  <example>
+  Context: User wants test skeletons for a model
+  user: "Generate test cases for my sale.order extension"
+  assistant: "I will analyze the model definition and generate TransactionCase test skeletons covering CRUD, computed fields, and business logic."
+  <commentary>Test generation trigger.</commentary>
+  </example>
+
+  <example>
+  Context: User wants mock data
+  user: "Create realistic mock data for testing my inventory module"
+  assistant: "I will generate a mock data factory with realistic product, partner, and stock.move records using Odoo demo data patterns."
+  <commentary>Mock data trigger.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to run tests
+  user: "Run tests for my custom module with post_install tag"
+  assistant: "I will execute the test suite with --test-enable and --test-tags=post_install, showing colored output."
+  <commentary>Test run trigger.</commentary>
+  </example>
+
+  <example>
+  Context: User wants coverage analysis
+  user: "Show me which parts of my module have no test coverage"
+  assistant: "I will scan for untested models, methods, and views, then generate a coverage report with priority recommendations."
+  <commentary>Coverage analysis trigger.</commentary>
+  </example>
+
+  <example>
+  Context: User wants E2E tests
+  user: "Generate Playwright E2E tests for my Odoo module"
+  assistant: "I will create Playwright test files covering login, navigation, form submission, and data validation for the module's web interface."
+  <commentary>E2E test trigger.</commentary>
+  </example>
+version: "2.0.0"
 author: "TaqaTechno"
 license: "MIT"
 allowed-tools:
@@ -49,7 +84,9 @@ metadata:
     - coverage
 ---
 
-# Odoo Testing Toolkit Skill (v1.0)
+# Odoo Testing Toolkit Skill (v2.0)
+
+> **v2.0 Architecture**: All testing operations available via `/odoo-test` sub-commands or natural language.
 
 A comprehensive skill for generating, running, and analyzing tests across Odoo 14-19. Covers unit tests, integration tests, HTTP controller tests, mock data creation, and test coverage analysis. Includes CI/CD integration patterns for Azure DevOps pipelines.
 

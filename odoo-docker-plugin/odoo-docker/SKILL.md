@@ -1,7 +1,7 @@
 ---
 name: odoo-docker
 description: |
-  Docker infrastructure manager for Odoo — production deployment, nginx proxy, CI/CD pipelines, performance tuning, multi-version image management, container debugging, and centralized workspace orchestration for Odoo 14-19 Enterprise.
+  Docker infrastructure manager for Odoo — production deployment, nginx proxy, CI/CD pipelines, performance tuning, multi-version image management, container debugging, and centralized workspace orchestration for Odoo 14-19 Enterprise. v2.0 consolidates nginx, debug, and perf into natural language triggers alongside the /odoo-docker sub-command interface.
 
 
   <example>
@@ -24,7 +24,35 @@ description: |
   assistant: "I will use the odoo-docker skill to check container logs, verify environment variables, inspect the Odoo config, and identify the startup failure cause."
   <commentary>Debugging trigger - container crash diagnosis.</commentary>
   </example>
-version: "1.0.0"
+
+  <example>
+  Context: User needs nginx reverse proxy for Odoo
+  user: "Generate nginx config for my Odoo Docker setup"
+  assistant: "I will use the odoo-docker skill to generate an optimized nginx.conf with gzip, WebSocket proxy, caching, and rate limiting."
+  <commentary>Nginx trigger - reverse proxy configuration.</commentary>
+  </example>
+
+  <example>
+  Context: User's container keeps crashing
+  user: "My Odoo container keeps restarting, help me debug it"
+  assistant: "I will use the odoo-docker skill to check container status, logs, health, network, and volumes systematically."
+  <commentary>Debug trigger - container troubleshooting.</commentary>
+  </example>
+
+  <example>
+  Context: User wants performance optimization
+  user: "Analyze and tune my Odoo Docker performance"
+  assistant: "I will use the odoo-docker skill to analyze Docker config, PostgreSQL tuning, resource limits, and generate recommendations."
+  <commentary>Performance trigger - Docker tuning analysis.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to build Docker images
+  user: "Build Docker image for Odoo 17 with my custom modules"
+  assistant: "I will use the odoo-docker skill to create a Dockerfile and build the image with proper layer caching."
+  <commentary>Build trigger - Docker image creation.</commentary>
+  </example>
+version: "2.0.0"
 author: "TaqaTechno"
 license: "MIT"
 allowed-tools:
@@ -47,6 +75,9 @@ metadata:
 ## 1. Overview / Role
 
 The `odoo-docker` skill is the Docker **infrastructure and deployment** expert for TaqaTechno's multi-version Odoo Enterprise environment. It handles everything beyond basic container lifecycle — production deployment, nginx configuration, CI/CD pipelines, performance tuning, security hardening, and container troubleshooting.
+
+> **v2.0 Architecture**: Nginx config, debugging, and performance tuning are handled via natural language.
+> For project init, compose generation, deployment, and builds, use `/odoo-docker` sub-commands.
 
 ### What This Skill Does
 

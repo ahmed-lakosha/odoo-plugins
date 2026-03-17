@@ -1,6 +1,6 @@
 {
   "name": "odoo-docker",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Docker infrastructure manager for Odoo  -  production deployment with nginx, CI/CD pipelines, performance tuning, multi-version image management, container debugging, and centralized workspace orchestration for Odoo 14-19 Enterprise.",
   "author": {
     "name": "TaqaTechno",

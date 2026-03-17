@@ -24,6 +24,34 @@ description: |
   assistant: "I will use the odoo-frontend skill with Figma MCP to extract design tokens and convert them into Odoo theme SCSS variables and Bootstrap-compatible layouts."
   <commentary>Design-to-code workflow with Figma MCP integration.</commentary>
   </example>
+
+  <example>
+  Context: User needs theme mirror models for website pages
+  user: "Create theme mirror models for my website pages"
+  assistant: "I will use the odoo-frontend skill to generate theme.ir.ui.view and theme.website.page records following Odoo core patterns."
+  <commentary>Mirror model trigger - theme record generation for multi-website support.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to create a theme from Figma
+  user: "Build an Odoo 17 theme from this Figma design"
+  assistant: "I will use the odoo-frontend skill to extract design tokens from Figma and generate a complete theme module with SCSS variables, mirror models, and page templates."
+  <commentary>Theme creation trigger - Figma-to-Odoo pipeline. Use /odoo-frontend create-theme for the guided workflow.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to validate their PWA setup
+  user: "Check my PWA manifest and service worker configuration"
+  assistant: "I will audit the manifest.json for completeness, verify service worker registration, check icon sizes, and validate iOS meta tags."
+  <commentary>PWA audit trigger — validates Progressive Web App configuration.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to make their Odoo site installable
+  user: "Make my Odoo website work as a PWA"
+  assistant: "I will generate a manifest.json, service worker with offline fallback, and add the required meta tags for iOS and Android installation."
+  <commentary>PWA creation trigger — generates PWA files for Odoo website.</commentary>
+  </example>
 version: "7.0.0"
 author: "TAQAT Techno"
 license: "MIT"
@@ -47,7 +75,10 @@ metadata:
   theme-features: ["o-website-values-palettes", "mirror-models", "snippet-groups", "color-palettes"]
 ---
 
-# Odoo Frontend Development Skill v6.0
+# Odoo Frontend Development Skill v5.0
+
+> **v5.0 Architecture**: Theme mirror model creation is handled via natural language.
+> For the guided Figma-to-Odoo theme pipeline, use `/odoo-frontend create-theme`.
 
 ## Overview
 
@@ -1992,6 +2023,34 @@ document.styleSheets[0].cssRules.length  // Should be > 0
      }
    });
    ```
+
+## PWA Audit Checklist
+
+When user asks to check/audit/validate their PWA:
+
+### manifest.json Checks
+- `name` and `short_name` present
+- `start_url` set (usually `/`)
+- `display` set (`standalone` or `fullscreen`)
+- `theme_color` and `background_color` defined
+- `icons` array with at least 192x192 and 512x512 PNG
+- `scope` defined
+
+### Service Worker Checks
+- Registration in main template or JavaScript
+- Offline fallback page defined
+- Cache strategy appropriate (cache-first for assets, network-first for API)
+- `fetch` event handler present
+
+### iOS Meta Tags
+- `<link rel="apple-touch-icon" href="icon-180.png">`
+- `<meta name="apple-mobile-web-app-capable" content="yes">`
+- `<meta name="apple-mobile-web-app-status-bar-style" content="default">`
+
+### Odoo-Specific PWA Notes
+- Register service worker in `web.assets_frontend` bundle
+- Use `publicWidget` for install prompt UI
+- Manifest link in website layout template: `<link rel="manifest" href="/manifest.json">`
 
 ## Modern JavaScript & TypeScript
 

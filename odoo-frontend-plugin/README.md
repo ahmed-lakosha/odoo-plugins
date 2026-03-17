@@ -1,28 +1,30 @@
-# Odoo Frontend Plugin for Claude Code v4.0
+# Odoo Frontend Plugin for Claude Code v5.0
 
 Advanced Odoo frontend development plugin with **Figma browser automation**, PWA support, TypeScript, modern testing frameworks, performance optimization, accessibility compliance, and complete theme scaffolding for Odoo 14-19.
 
-## 🎨 NEW: /create-theme with Figma Browser Automation
+> **v5.0 Migration Note**: In v5.0, 3 commands (`/create-theme`, `/theme_web_rec`, `/odoo-frontend`) consolidated into 1 unified command: `/odoo-frontend` with sub-commands. Mirror model creation is now handled via natural language triggers.
+
+## `/odoo-frontend create-theme` - Figma-to-Odoo Theme Generator
 
 **Extract design variables directly from Figma and generate production-ready Odoo themes!**
 
 ```bash
 # Open Figma design in Chrome, extract colors & typography, generate theme
-/create-theme --figma https://www.figma.com/file/abc123/MyDesign
+/odoo-frontend create-theme --figma https://www.figma.com/file/abc123/MyDesign
 
 # Full arguments
-/create-theme my_theme projects/my_project --figma <figma_url> --version=17
+/odoo-frontend create-theme my_theme projects/my_project --figma <figma_url> --version=17
 
 # Manual mode (without Figma)
-/create-theme modern_corp projects/my_project --version=17 --colors="#207AB7,#FB9F54,#F6F4F0,#FFFFFF,#191A19"
+/odoo-frontend create-theme modern_corp projects/my_project --version=17 --colors="#207AB7,#FB9F54,#F6F4F0,#FFFFFF,#191A19"
 ```
 
 ### Figma Integration Features:
-- 🔄 **Chrome Browser Automation**: Opens Figma via Claude-in-Chrome MCP tools
-- 🎨 **Color Extraction**: Primary, secondary → `o-color-1` to `o-color-5` mapping
-- 📝 **Typography Extraction**: H1-H6 with H6 fixed at 16px (1rem) base
-- 📏 **Extended Hierarchy**: Display classes (display-1 to display-6) for designs with >6 levels
-- ⚙️ **Auto-Fix**: Tests installation and automatically fixes common issues
+- **Chrome Browser Automation**: Opens Figma via Claude-in-Chrome MCP tools
+- **Color Extraction**: Primary, secondary to `o-color-1` to `o-color-5` mapping
+- **Typography Extraction**: H1-H6 with H6 fixed at 16px (1rem) base
+- **Extended Hierarchy**: Display classes (display-1 to display-6) for designs with >6 levels
+- **Auto-Fix**: Tests installation and automatically fixes common issues
 
 Creates a complete theme module with:
 - `$o-website-values-palettes` configuration
@@ -38,10 +40,10 @@ The Odoo Frontend Plugin supercharges your Odoo website and theme development wi
 
 ## Features
 
-### 🎨 Theme Development
-- **🆕 /create-theme Command**: Generate complete theme modules with all files
+### Theme Development
+- **`/odoo-frontend create-theme`**: Generate complete theme modules with all files (Figma or manual)
+- **Natural Language Mirror Models**: Ask for theme mirror models in plain English -- no separate command needed
 - **Complete Theme Scaffolding**: Generate full theme module structures
-- **Theme Mirror Models**: `/theme_web_rec` command for multi-website support
 - **Bootstrap Version Management**: Auto-detect and handle Bootstrap 4/5
 - **SCSS Variable System**: Proper color palettes and typography
 - **Snippet Development**: Modern snippet patterns with Odoo 19 support
@@ -106,8 +108,7 @@ The Odoo Frontend Plugin supercharges your Odoo website and theme development wi
    ├── .claude-plugin/
    │   └── plugin.json
    ├── commands/                    # Slash commands (at plugin root)
-   │   ├── create-theme.md
-   │   └── theme_web_rec.md
+   │   └── odoo-frontend.md         # Unified command with sub-commands
    ├── data/                        # JSON configuration data
    │   ├── color_palettes.json
    │   ├── theme_templates.json
@@ -138,33 +139,36 @@ The Odoo Frontend Plugin supercharges your Odoo website and theme development wi
    └── README.md
    ```
 
-## Commands
+## Command
 
-### `/odoo-frontend:create-theme` - Figma-to-Odoo Theme Generator (v4.0)
+### `/odoo-frontend` - Unified Frontend Command (v5.0)
+
+One command with sub-commands for all Odoo frontend development tasks.
+
+#### `create-theme` Sub-command
 
 Create complete, production-ready Odoo theme modules with **Figma browser automation**.
 
-#### Usage
 ```bash
 # Figma mode (Recommended) - Opens Figma in Chrome, extracts design variables
-/create-theme --figma https://www.figma.com/file/abc123/MyDesign
+/odoo-frontend create-theme --figma https://www.figma.com/file/abc123/MyDesign
 
 # Full arguments with Figma
-/create-theme my_theme projects/client --figma <url> --version=17
+/odoo-frontend create-theme my_theme projects/client --figma <url> --version=17
 
 # Manual mode (without Figma)
-/create-theme modern_corp projects/client --version=17 --colors="#207AB7,#FB9F54,#F6F4F0,#FFFFFF,#191A19" --font="IBM Plex Sans"
+/odoo-frontend create-theme modern_corp projects/client --version=17 --colors="#207AB7,#FB9F54,#F6F4F0,#FFFFFF,#191A19" --font="IBM Plex Sans"
 ```
 
-#### Figma Extraction Workflow
+##### Figma Extraction Workflow
 1. **Opens Figma in Chrome** via Claude-in-Chrome MCP
-2. **Extracts Colors**: Primary → `o-color-1`, Secondary → `o-color-2`, etc.
+2. **Extracts Colors**: Primary to `o-color-1`, Secondary to `o-color-2`, etc.
 3. **Extracts Typography**: H1-H6 sizes (H6 always 16px as base)
 4. **Extended Hierarchy**: Adds `display-1` to `display-6` for >6 heading levels
 5. **Generates Theme** with all SCSS variables
 6. **Tests Installation** and auto-fixes errors
 
-#### What Gets Created
+##### What Gets Created
 - `__manifest__.py` with proper asset bundles
 - `primary_variables.scss` with `$o-website-values-palettes` (from Figma)
 - Semantic color palette (`o-color-1` to `o-color-5`)
@@ -176,27 +180,22 @@ Create complete, production-ready Odoo theme modules with **Figma browser automa
 - Custom snippet templates
 - Security rules
 
-### `/odoo-frontend:theme_web_rec` - Theme Mirror Model Generator
+### Natural Language: Theme Mirror Models
 
-Create theme mirror models following Odoo core patterns for multi-website support.
+Mirror model creation (previously `/theme_web_rec`) is now triggered via natural language. Simply ask:
 
-#### Usage
 ```
-/odoo-frontend:theme_web_rec <website_module_path> <theme_module_path> [model_name]
-```
-
-#### Example
-```
-/odoo-frontend:theme_web_rec projects/pp/website_portfolio projects/pp/theme_pp
+"Create theme mirror models for my website pages"
+"Generate theme.ir.ui.view and theme.website.page records for multi-website support"
 ```
 
-This command:
-- Analyzes existing website models
-- Creates theme mirror models (theme.website.MODEL)
-- Sets up view delegation pattern
-- Configures installation hooks
-- Updates security rules
-- Generates sample templates
+The skill will:
+- Analyze existing website models
+- Create theme mirror models (theme.website.MODEL)
+- Set up view delegation pattern
+- Configure installation hooks
+- Update security rules
+- Generate sample templates
 
 ## Usage Examples
 
@@ -393,7 +392,13 @@ MIT License - See LICENSE file for details
 
 ## Changelog
 
-### Version 4.0.0 (Latest)
+### Version 5.0.0 (Latest)
+- **CONSOLIDATED**: 3 commands (`/create-theme`, `/theme_web_rec`, `/odoo-frontend`) into 1 unified `/odoo-frontend` command
+- **NEW**: Natural language triggers for mirror model creation (replaces `/theme_web_rec`)
+- **NEW**: `create-theme` sub-command for guided Figma-to-Odoo pipeline
+- **UPDATED**: Skill examples for mirror model and Figma theme triggers
+
+### Version 4.0.0
 - **NEW**: Figma browser automation via Claude-in-Chrome MCP tools
 - **NEW**: Automatic color extraction from Figma designs
 - **NEW**: Typography extraction (H1-H6 with H6 fixed at 16px)

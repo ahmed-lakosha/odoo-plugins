@@ -2,151 +2,591 @@
 title: 'Odoo Testing Workflow'
 read_only: false
 type: 'command'
-description: 'Full Odoo testing workflow: generate tests, run suite, analyze coverage for a module'
+description: 'Odoo testing toolkit — generate, mock data, run, coverage, and E2E tests'
+argument-hint: '[generate|data|run|coverage|e2e] <model|module> [args...]'
 ---
 
-# /odoo-test <module> [options]
+# /odoo-test [sub-command] [args...]
 
-Run the complete Odoo testing workflow for a module: detect missing tests, generate skeletons, run the test suite, and report coverage.
+Unified Odoo testing toolkit. Route to a sub-command or run the full workflow.
 
-## Usage
+## Routing
 
-```
-/odoo-test <module_name>
-/odoo-test my_module --config conf/project17.conf --database project17
-/odoo-test my_module --generate-missing
-/odoo-test my_module --coverage-only
-/odoo-test my_module --tags post_install
-```
+Parse the first token of `$ARGUMENTS`:
 
-## Natural Language Triggers
+| Token | Action |
+|-------|--------|
+| *(empty)* | Show help table below, then offer the **full workflow** (generate > run > coverage) |
+| `generate` | Jump to **Section 1 — Generate** |
+| `data` | Jump to **Section 2 — Data** |
+| `run` | Jump to **Section 3 — Run** |
+| `coverage` | Jump to **Section 4 — Coverage** |
+| `e2e` | Jump to **Section 5 — E2E** |
+| anything else | Treat the token as a `<module>` name and run the **full workflow** for it |
 
-```
-"Run tests for my_module"
-"Test the sale order customization"
-"Check coverage for my hr module"
-"Generate and run all tests for my module"
-"What tests are missing for my_module?"
-```
-
-## Full Workflow
-
-When invoked, this command executes the following steps:
+### Help Table (no args)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                   ODOO TEST WORKFLOW                              │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  Step 1: DISCOVER  →  Find module path and config               │
-│  Step 2: ANALYSE   →  Scan models and count public methods       │
-│  Step 3: GENERATE  →  Create test files for untested models      │
-│  Step 4: RUN       →  Execute test suite with Odoo runner        │
-│  Step 5: REPORT    →  Show PASS/FAIL summary and coverage %      │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
+/odoo-test                              Show this help + offer full workflow
+/odoo-test generate <model> [module]    Generate TransactionCase test skeleton
+/odoo-test data <model> [--count N]     Generate mock data factory for setUp
+/odoo-test run <module> [--tags X]      Run test suite with colored output
+/odoo-test coverage <module>            Scan for untested methods + coverage %
+/odoo-test e2e <module> [--url X]       Generate / run Playwright E2E tests
 ```
 
-## Step-by-Step Implementation
+### Natural Language Triggers
 
-### Step 1: Discover Module
+```
+"Run tests for my_module"                   -> /odoo-test run my_module
+"Generate tests for sale.order"             -> /odoo-test generate sale.order
+"Create mock data for res.partner"          -> /odoo-test data res.partner
+"Check coverage for my_module"              -> /odoo-test coverage my_module
+"Create E2E tests for my_module"            -> /odoo-test e2e my_module
+"Test the sale order customization"         -> /odoo-test my_module (full workflow)
+"What tests are missing for my_module?"     -> /odoo-test coverage my_module
+```
+
+### Full Workflow (no sub-command, or bare module name)
+
+When the user provides only a module name (or no args and then confirms a module), execute these steps in order:
+
+```
+Step 1  DISCOVER   Find module path + config across odoo14-19/projects/
+Step 2  GENERATE   Create test skeletons for any untested models
+Step 3  RUN        Execute the test suite (--test-enable -u <module>)
+Step 4  COVERAGE   Report coverage % and untested methods
+```
+
+Discovery logic:
 
 ```python
-import os
-import glob
 from pathlib import Path
 
-module_name = "${ARGS}".split()[0]
+module_name = "<MODULE>"
 odoo_root = Path(r"C:\TQ-WorkSpace\odoo")
 
-# Search for module across all Odoo versions
-found_modules = list(odoo_root.glob(f"odoo*/projects/*/{module_name}"))
-if not found_modules:
-    found_modules = list(odoo_root.glob(f"odoo*/projects/*/*/{module_name}"))
+found = list(odoo_root.glob(f"odoo*/projects/*/{module_name}"))
+if not found:
+    found = list(odoo_root.glob(f"odoo*/projects/*/*/{module_name}"))
 
-if not found_modules:
-    print(f"[ERROR] Module '{module_name}' not found under C:\\odoo\\odoo*\\projects\\")
-    print("Hint: Check the module name and ensure it's in a projects\\ directory")
+if not found:
+    print(f"[ERROR] Module '{module_name}' not found under any odoo*/projects/ tree")
 else:
-    module_path = found_modules[0]
+    module_path = found[0]
     print(f"[OK] Found module: {module_path}")
 ```
 
-### Step 2: Run Coverage Analysis
+After discovery, run generate > run > coverage in sequence, printing a consolidated report at the end.
 
-```bash
-# Find module path first, then run coverage reporter
-python "${PLUGIN_DIR}/odoo-test/scripts/coverage_reporter.py" \
-    --module "${MODULE_PATH}"
+---
+
+## Section 1 — generate
+
+```
+/odoo-test generate <model.name> [--module PATH] [--output PATH] [--dry-run] [--force]
 ```
 
-### Step 3: Generate Missing Tests
+Generate a production-quality `TransactionCase` test file for an Odoo model. Reads the model's Python source to detect fields, decorators, and methods, then creates a complete test class.
 
-```bash
-python "${PLUGIN_DIR}/odoo-test/scripts/test_generator.py" \
-    --model "${MODEL}" \
-    --module "${MODULE_PATH}"
+### What to Generate
+
+Read every `.py` file under `models/` (and `wizard/`) in the target module. For each model class found, collect:
+
+- Required fields (for `setUp` create calls)
+- `@api.depends` methods (compute tests)
+- `@api.constrains` methods (constraint tests)
+- `@api.onchange` methods (onchange tests)
+- `action_*` methods (business method tests)
+- SQL constraints from `_sql_constraints`
+
+### Generated File Structure
+
+Write to `<module>/tests/test_<model_name>.py` (e.g., `test_sale_order.py` for `sale.order`). Ensure `tests/__init__.py` imports the new file.
+
+```python
+"""
+Tests for my.model (My Model Description)
+Generated by odoo-test-plugin
+"""
+from odoo.tests import TransactionCase, tagged
+from odoo.exceptions import ValidationError, UserError
+from odoo import fields
+
+
+@tagged('post_install', '-at_install')
+class TestMyModel(TransactionCase):
+    """Test suite for my.model."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Shared fixtures — runs once for all tests."""
+        super().setUpClass()
+        cls.env = cls.env(context={
+            **cls.env.context,
+            'mail_notrack': True,
+            'tracking_disable': True,
+        })
+        cls.company = cls.env.company
+
+    def setUp(self):
+        """Fresh records — auto-rolled-back after each test."""
+        super().setUp()
+        self.record = self.env['my.model'].create({
+            'name': 'Test Record',
+        })
+
+    # -- CREATE ---------------------------------------------------------------
+    def test_create_minimal(self): ...
+    def test_create_full(self): ...
+    def test_create_missing_required_field(self): ...
+
+    # -- READ / SEARCH --------------------------------------------------------
+    def test_search_returns_created_record(self): ...
+    def test_display_name(self): ...
+
+    # -- WRITE ----------------------------------------------------------------
+    def test_write_name(self): ...
+
+    # -- DELETE ---------------------------------------------------------------
+    def test_unlink_draft_record(self): ...
+
+    # -- COMPUTE FIELDS -------------------------------------------------------
+    def test_compute_<field_name>(self): ...  # one per @api.depends method
+
+    # -- CONSTRAINTS ----------------------------------------------------------
+    def test_constraint_<name>(self): ...     # one per @api.constrains / SQL
+
+    # -- ONCHANGE -------------------------------------------------------------
+    def test_onchange_<field>(self): ...      # one per @api.onchange
+
+    # -- BUSINESS METHODS -----------------------------------------------------
+    def test_action_<name>(self): ...         # one per action_* method
+
+    # -- MULTI-RECORD ---------------------------------------------------------
+    def test_create_multiple_records(self): ...
 ```
 
-### Step 4: Run Tests
+For `HttpCase` tests: if the model has controllers (files under `controllers/`), also generate an `HttpCase` skeleton with `url_open` and `start_tour` stubs.
 
-```bash
-python "${PLUGIN_DIR}/odoo-test/scripts/test_runner.py" \
-    --module "${MODULE_NAME}" \
-    --config "${CONFIG}" \
-    --database "${DATABASE}" \
-    --tags "post_install"
-```
-
-## Options Reference
+### Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--config` | Path to Odoo config file | Auto-detected |
-| `--database` | Database name | Auto-detected |
-| `--tags` | Test tags to run | `post_install` |
-| `--generate-missing` | Auto-generate tests for untested models | False |
-| `--coverage-only` | Only run coverage analysis, skip test execution | False |
-| `--threshold` | Minimum coverage % (fail if below) | 0 (disabled) |
-| `--output` | Save report to file | stdout |
+| `--module PATH` | Module directory (enables field detection) | Auto-discovered |
+| `--output PATH` | Custom output file path | `tests/test_<model>.py` |
+| `--dry-run` | Print to stdout, do not write files | False |
+| `--force` | Overwrite existing test file | False |
 
-## Output Example
+### After Generation
 
-```
-────────────────────────────────────────────────────────────────
-Odoo Test Runner — my_module
-────────────────────────────────────────────────────────────────
-[INFO] Config:   conf/project17.conf
-[INFO] Database: project17
-[INFO] Module:   my_module
-[INFO] Tags:     post_install
+1. Review the generated file and adjust `setUp` field values to realistic fixtures
+2. Fill in assertion bodies (the skeleton uses `...` / `pass`)
+3. Run with: `/odoo-test run <module>`
 
-PASS  my_module.tests.test_my_model.TestMyModel.test_create_minimal
-PASS  my_module.tests.test_my_model.TestMyModel.test_write_name
-FAIL  my_module.tests.test_my_model.TestMyModel.test_constraint_amount
+---
 
-────────────────────────────────────────────────────────────────
-Test Results Summary
-────────────────────────────────────────────────────────────────
-  TESTS FAILED
-
-  Total Tests:         3
-  Passed:              2
-  Failed:              1
-  Errors:              0
-  Skipped:             0
-  Duration:            4.23s
-```
-
-## Integration with /devops Plugin
-
-This command integrates with the devops-plugin for Azure DevOps reporting:
+## Section 2 — data
 
 ```
-/odoo-test my_module --output test_results.xml --format junit
-# Then use devops-plugin to post results to Azure DevOps
+/odoo-test data <model.name> [--count N] [--module PATH] [--format FMT] [--output PATH]
+```
+
+Generate realistic mock-data Python code for use in `setUpClass()` or `setUp()` methods. Detects field types from model source and produces type-aware values.
+
+### Output Formats
+
+**individual** (default) -- one `create()` call per record:
+
+```python
+record_1 = self.env['res.partner'].create({
+    'name': 'Acme Corporation',
+    'is_company': True,
+    'email': 'acme.corporation@business.com',
+    'phone': '+1-800-555-0100',
+    'city': 'Riyadh',
+    'country_id': self.env.ref('base.sa').id,
+})
+```
+
+**create_list** -- single batch `create([...])`:
+
+```python
+records = self.env['res.partner'].create([
+    {'name': 'Ahmed Al-Rashidi', 'email': 'ahmed@company.com', ...},
+    {'name': 'Emma Johnson',     'email': 'emma@tech.io', ...},
+])
+```
+
+**loop** -- for large counts (>10):
+
+```python
+records = []
+for i in range(1, 51):
+    records.append(self.env['res.partner'].create({
+        'name': f'Test Partner {i:03d}',
+        'email': f'partner{i:03d}@company.com',
+    }))
+```
+
+**setup_method** -- full `setUpClass` snippet ready to paste:
+
+```python
+@classmethod
+def setUpClass(cls):
+    super().setUpClass()
+    cls.env = cls.env(context={**cls.env.context, 'mail_notrack': True, 'tracking_disable': True})
+    cls.partners = cls.env['res.partner'].create([
+        {'name': 'Test Record 1', 'email': 'test1@example.com'},
+        {'name': 'Test Record 2', 'email': 'test2@example.com'},
+    ])
+```
+
+### Field-Type Value Generation
+
+| Field Type | Example Values |
+|-----------|---------------|
+| `Char` (name) | 'Ahmed Al-Rashidi', 'Emma Williams' |
+| `Char` (email) | 'ahmed.alrashidi@company.com' |
+| `Char` (phone) | '+1-555-234-5678' |
+| `Char` (city) | 'Riyadh', 'Dubai', 'London' |
+| `Float` (price/amount) | 1247.83, 5982.10 |
+| `Float` (quantity) | 3.0, 15.5 |
+| `Integer` | 7, 42 |
+| `Date` (start) | `fields.Date.add(fields.Date.today(), days=-14)` |
+| `Date` (end/due) | `fields.Date.add(fields.Date.today(), days=30)` |
+| `Datetime` | `fields.Datetime.now()` |
+| `Boolean` | `True` / `False` |
+| `Selection` | First valid key from the selection list |
+| `Many2one` (partner) | `self.env.ref('base.res_partner_1').id` |
+| `Many2one` (company) | `self.env.company.id` |
+| `Many2one` (currency) | `self.env.ref('base.USD').id` |
+
+### Pre-Built Templates
+
+These common models have optimised, realistic data templates built-in:
+
+| Model | Highlights |
+|-------|-----------|
+| `res.partner` | Names, emails, addresses, phone, customer/supplier rank |
+| `res.users` | Login, groups, company |
+| `product.product` | Product names, prices, UoM refs |
+| `hr.employee` | Full names, job titles, work contact |
+| `sale.order` | With order lines, quantities, unit prices |
+| `account.move` | Invoice type, line items, account refs |
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--count N` | Number of records | 3 |
+| `--module PATH` | Module path for field detection | -- |
+| `--format` | `individual`, `create_list`, `loop`, `setup_method` | `individual` |
+| `--output PATH` | Write to file | stdout |
+
+---
+
+## Section 3 — run
+
+```
+/odoo-test run <module> [--config CONF] [--database DB] [--tags TAGS] [--test-class CLS] [--test-method MTD] [--junit PATH] [--show-logs]
+```
+
+Execute the Odoo test suite for a module with coloured PASS/FAIL output.
+
+### Config Auto-Detection
+
+If `--config` and `--database` are omitted, scan `conf/` in the parent Odoo version directory for a `.conf` file whose `addons_path` includes the module. Extract `dbfilter` to derive the database name.
+
+### Tag Filtering
+
+```bash
+/odoo-test run my_module --tags post_install           # most common
+/odoo-test run my_module --tags standard,-slow          # exclude slow
+/odoo-test run my_module --test-class TestMyModel       # single class
+/odoo-test run my_module --test-class TestMyModel --test-method test_create_order
+```
+
+### Underlying Odoo Command
+
+The runner constructs and executes:
+
+```bash
+python -m odoo -c <config> -d <database> \
+    --test-enable -u <module> \
+    --test-tags=<tags> \
+    --stop-after-init
+```
+
+Then parses the Odoo log for test results. Sample output:
+
+```
+Odoo Test Runner -- my_module  (conf/project17.conf / project17 / post_install)
+
+PASS  test_sale.TestSaleOrder.test_create_order
+PASS  test_sale.TestSaleOrder.test_confirm_order
+FAIL  test_sale.TestSaleOrder.test_invoice_flow
+
+Summary: 3 total | 2 passed | 1 failed | 5.12s
+  x test_invoice_flow — AssertionError: 'draft' != 'posted'
+```
+
+### JUnit XML Output
+
+```bash
+/odoo-test run my_module --junit test_results.xml
+```
+
+Produces standard JUnit XML suitable for Azure DevOps `PublishTestResults@2`, Jenkins, or GitHub Actions.
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--config CONF` | Odoo config file | Auto-detected |
+| `--database DB` | Database name | Auto-detected |
+| `--tags TAGS` | Comma-separated tags (`-tag` to exclude) | `post_install` |
+| `--test-class CLS` | Run only this test class | All |
+| `--test-method MTD` | Run only this method (requires `--test-class`) | All |
+| `--install` | Use `-i` (install) instead of `-u` (update) | False |
+| `--show-logs` | Show full Odoo log output | False |
+| `--junit PATH` | Write JUnit XML report to PATH | -- |
+| `--json PATH` | Write JSON report to PATH | -- |
+
+### Raw Odoo Commands (for reference)
+
+```bash
+# Update + test          python -m odoo -c CONF -d DB --test-enable -u MODULE --stop-after-init
+# Install + test         python -m odoo -c CONF -d DB --test-enable -i MODULE --stop-after-init
+# Specific class         python -m odoo -c CONF -d DB --test-enable --test-tags=/MODULE:CLASS --stop-after-init
+# Debug logging          add: --log-level=debug --log-handler=odoo.tests:DEBUG
 ```
 
 ---
+
+## Section 4 — coverage
+
+```
+/odoo-test coverage <module_path_or_name> [--threshold N] [--format FMT] [--output PATH]
+```
+
+Static analysis of test coverage: scan the module's Python source for public methods, compare against test files, and report what is covered and what is not.
+
+### How It Works
+
+1. **Collect methods**: Walk `models/`, `wizard/`, `controllers/` for public methods (not starting with `_` except `_compute_*`, `_check_*`, `_inverse_*`, `_search_*`, `action_*`).
+2. **Collect tests**: Walk `tests/` for `test_*` methods and extract referenced method names from their bodies.
+3. **Match**: A source method is "tested" if any test method's body references it by name.
+4. **Report**: Per-model table + overall percentage + prioritised list of untested methods.
+
+### Terminal Output
+
+```
+========================================================================
+  ODOO TEST COVERAGE REPORT -- my_module
+========================================================================
+  Module path: /c/odoo/odoo17/projects/myproject/my_module
+  Models analysed: 4       Test methods found: 12
+
+  Model                         File                    Methods  Tested  Cov%
+  ---------------------------------------------------------------------------
+  my.model                      models/my_model.py           8       4  50.0%
+  my.model (inherited)          models/sale_ext.py           3       3 100.0%
+  my.wizard                     wizard/my_wizard.py          2       0   0.0%
+  sale.order (inherited)        models/sale_order.py         5       3  60.0%
+  ---------------------------------------------------------------------------
+  TOTAL                                                     18      10  55.6%
+
+  Overall: [||||||||||..........] 55.6%
+
+  Untested Methods (priority order):
+    1. my.wizard.action_apply          [ACTION]     wizard/my_wizard.py:23
+    2. my.model.action_confirm         [ACTION]     models/my_model.py:45
+    3. my.model.action_cancel          [ACTION]     models/my_model.py:52
+    4. my.model._compute_amount        [COMPUTE]    models/my_model.py:78
+    ...
+
+  Recommendations:
+    * Coverage below 80%. Focus on untested action_* methods first.
+    * 2 constraint methods untested -- these are highest priority.
+    * Run: /odoo-test generate <model> to create skeletons for gaps.
+```
+
+### Priority Order for Adding Tests
+
+| Priority | Method Type | Why |
+|----------|------------|-----|
+| 1 | `@api.constrains` | Data integrity -- must be 100% |
+| 2 | `action_*` | User workflow critical paths |
+| 3 | `@api.depends` (compute) | Business logic correctness |
+| 4 | `@api.onchange` | UI behaviour |
+| 5 | Helper / utility | Internal logic |
+
+### Coverage Thresholds
+
+| Range | Status | CI Gate |
+|-------|--------|---------|
+| 90-100% | Excellent | Pass |
+| 80-89% | Good | Pass (recommended minimum) |
+| 50-79% | Needs improvement | Warn |
+| 0-49% | Critical | Fail |
+
+### Output Formats
+
+**terminal** (default) -- coloured table as shown above.
+
+**json**:
+
+```json
+{
+  "module_name": "my_module",
+  "overall_coverage": 55.6,
+  "total_methods": 18,
+  "tested_methods": 10,
+  "models": [
+    {
+      "model_name": "my.model",
+      "coverage_pct": 50.0,
+      "untested_methods": [
+        {"name": "action_confirm", "line": 45, "category": "ACTION"}
+      ]
+    }
+  ]
+}
+```
+
+**html** -- self-contained HTML with styled table and coverage bars, suitable for PR attachments.
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--threshold N` | Exit code 1 if coverage < N% | 0 (disabled) |
+| `--format` | `terminal`, `json`, `html` | `terminal` |
+| `--output PATH` | Save report to file | stdout |
+
+---
+
+## Section 5 — e2e
+
+```
+/odoo-test e2e <module> [--url URL] [--target self-hosted|odoosh] [--headed] [--grep PATTERN]
+```
+
+Generate and run Playwright E2E tests for an Odoo module. Supports self-hosted (localhost) and Odoo.sh deployments.
+
+### First-Time Setup
+
+If no `playwright.config.ts` exists in the project, generate the full scaffold:
+
+```
+project-root/
+  playwright.config.ts
+  tests/e2e/
+    helpers/
+      global-setup.ts          <- Odoo login + session storage
+    pages/
+      odoo-form-page.ts        <- Page object model
+    <module>-e2e.spec.ts       <- Test file
+```
+
+Install dependencies:
+
+```bash
+npm init playwright@latest       # or: npm install --save-dev @playwright/test
+npx playwright install chromium
+```
+
+### Key Generated Files
+
+**playwright.config.ts** -- configures `testDir: './tests/e2e'`, `baseURL` from `PLAYWRIGHT_BASE_URL` env var (default `http://localhost:8069`), `storageState` for session reuse, JUnit + HTML reporters, 60s timeout, chromium-only project.
+
+**global-setup.ts** -- launches headless browser, navigates to `/web/login`, fills `ODOO_USER`/`ODOO_PASSWORD` (default `admin`/`admin`), saves session to `tests/e2e/.auth/user.json`. All spec files reuse this session.
+
+**`<module>-e2e.spec.ts`** -- generated with these default tests:
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('[<module>] E2E Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/odoo/<module-kebab>');
+    await page.waitForSelector('.o_loading', { state: 'hidden' });
+  });
+
+  test('should display list view', async ({ page }) => {
+    await expect(page.locator('.o_list_view')).toBeVisible();
+  });
+
+  test('should create a new record', async ({ page }) => {
+    await page.click('button.o_btn_new, a.o_btn_new');
+    await page.waitForSelector('.o_form_editable', { state: 'visible' });
+    await page.fill('.o_field_char[name="name"] input', 'Test Record E2E');
+    await page.click('.o_form_buttons_view .o_btn_save');
+    await page.waitForSelector('.o_loading', { state: 'hidden' });
+    const name = await page.locator('.o_field_char[name="name"]').textContent();
+    expect(name?.trim()).toBe('Test Record E2E');
+  });
+
+  test('should validate required fields', async ({ page }) => {
+    await page.click('button.o_btn_new, a.o_btn_new');
+    await page.click('.o_form_buttons_view .o_btn_save');
+    await expect(
+      page.locator('.o_field_widget.o_required_modifier.o_field_invalid')
+    ).toBeVisible();
+  });
+});
+```
+
+### Running E2E Tests
+
+```bash
+npx playwright test                                       # all tests
+npx playwright test --headed                              # visible browser
+npx playwright test tests/e2e/my-module-e2e.spec.ts      # single file
+npx playwright test --grep "should create"                # by name
+npx playwright test --debug                               # step-through
+npx playwright show-report                                # HTML report
+
+# Against Odoo.sh
+PLAYWRIGHT_BASE_URL=https://project.odoo.com \
+ODOO_USER=test@example.com \
+ODOO_PASSWORD=secret \
+npx playwright test
+```
+
+### CI Integration
+
+For GitHub Actions or Azure DevOps, the generated `playwright-results.xml` (JUnit) is ready for test result publishing. Set three secrets/env vars: `PLAYWRIGHT_BASE_URL` (Odoo.sh staging URL), `ODOO_USER`, `ODOO_PASSWORD`.
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--url URL` | Base URL for Odoo instance | `http://localhost:8069` |
+| `--target` | `self-hosted` or `odoosh` | `self-hosted` |
+| `--headed` | Run with visible browser | False |
+| `--grep PATTERN` | Filter tests by name pattern | -- |
+
+---
+
+## Azure DevOps / CI Integration
+
+Any sub-command that produces file output can feed CI pipelines:
+
+```bash
+# Generate JUnit results for Azure DevOps PublishTestResults@2
+/odoo-test run my_module --junit test_results.xml
+
+# Fail build if coverage < 80%
+/odoo-test coverage my_module --threshold 80 --format json --output coverage.json
+
+# Playwright also produces JUnit XML automatically in playwright-results.xml
+/odoo-test e2e my_module
+```
+
+---
+
+> **Note:** The following standalone commands have been absorbed into this unified `/odoo-test` command and are no longer needed as separate invocations: `/test-generate`, `/test-data`, `/test-run`, `/test-coverage`, `/e2e-test`.
 
 *Part of odoo-test-plugin v1.0*

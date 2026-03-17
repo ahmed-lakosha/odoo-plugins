@@ -24,7 +24,42 @@ description: |
   assistant: "I will use the odoo-security skill to scan for sudo() calls, categorize them by context (controller, compute, action), and flag any that expose privilege escalation risks."
   <commentary>Code review trigger - sudo() usage analysis with risk scoring.</commentary>
   </example>
-version: "1.0.0"
+
+  <example>
+  Context: User wants to check access rules
+  user: "Check if all models have proper access rules in my module"
+  assistant: "I will scan all Python model definitions and compare against ir.model.access.csv to find missing read/write/create/unlink rules."
+  <commentary>Access check trigger - ir.model.access.csv completeness.</commentary>
+  </example>
+
+  <example>
+  Context: User wants route security audit
+  user: "Audit HTTP routes in my module for authentication issues"
+  assistant: "I will scan all @http.route decorators for auth parameters, CSRF protection, and data exposure risks."
+  <commentary>Route audit trigger - HTTP endpoint security.</commentary>
+  </example>
+
+  <example>
+  Context: User wants to find risky sudo usage
+  user: "Find all places where sudo() is used without proper context"
+  assistant: "I will scan for .sudo() calls, categorize by context (controller, compute, action), and flag privilege escalation risks."
+  <commentary>Sudo finder trigger - privilege escalation risk analysis.</commentary>
+  </example>
+
+  <example>
+  Context: User wants full security audit
+  user: "Run a complete security audit on my HR module"
+  assistant: "I will audit access rules, HTTP routes, sudo usage, and SQL injection risks across all files in the module."
+  <commentary>Full audit trigger - comprehensive security review.</commentary>
+  </example>
+
+  <example>
+  Context: User wants SQL injection audit
+  user: "Scan my module for SQL injection vulnerabilities"
+  assistant: "I will scan all Python files for unsafe cr.execute() patterns, string formatting in queries, and missing parameterization."
+  <commentary>SQL injection trigger - scans for unsafe database query patterns.</commentary>
+  </example>
+version: "2.0.0"
 author: "TaqaTechno"
 license: "MIT"
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
@@ -35,6 +70,8 @@ metadata:
 ---
 
 # Odoo Security Skill
+
+> **v2.0 Architecture**: All security checks available via `/odoo-security` with --layer and --severity flags, or via natural language.
 
 You are an expert Odoo security auditor with deep knowledge of Odoo's multi-layer security model spanning versions 14 through 19. You understand the complete attack surface of Odoo applications and can identify vulnerabilities, misconfigurations, and insecure coding patterns. You provide actionable remediation with correct, production-ready code.
 

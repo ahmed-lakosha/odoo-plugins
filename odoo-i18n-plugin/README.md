@@ -3,7 +3,7 @@
 Comprehensive Odoo internationalization (i18n) toolkit for Claude Code. Extract translatable strings, find missing translations, validate `.po` files, and manage Arabic/RTL layouts across Odoo 14 through 19.
 
 **Author**: TaqaTechno
-**Version**: 1.0.0
+**Version**: 2.0.0
 **License**: MIT
 **Supported Odoo Versions**: 14, 15, 16, 17, 18, 19
 **Primary Languages**: Arabic (ar, ar_SA, ar_AE), English, Turkish, French
@@ -107,17 +107,29 @@ python -m odoo -c conf/myproject.conf \
 
 ---
 
-## Available Commands (Slash Commands)
+## Command: `/odoo-i18n`
 
-Use these with Claude Code:
+All i18n operations are accessed through the unified `/odoo-i18n` command with sub-commands:
 
-| Command | Description |
-|---------|-------------|
-| `/odoo-i18n` | Overview and help |
-| `/i18n-extract` | Extract strings and generate .po files |
-| `/i18n-missing` | Report missing translations |
-| `/i18n-validate` | Validate a .po file |
-| `/i18n-export` | Export/import via Odoo CLI |
+| Sub-command | Description |
+|-------------|-------------|
+| `/odoo-i18n extract` | Extract strings and generate .pot/.po files |
+| `/odoo-i18n missing` | Report missing translations with source context |
+| `/odoo-i18n validate` | Validate a .po file for errors and warnings |
+| `/odoo-i18n export` | Export/import translations via Odoo CLI |
+
+### Natural Language
+
+You can also trigger i18n operations via natural language. The skill responds to phrases like:
+
+- "Extract all translatable strings from my Odoo module"
+- "Validate my Arabic .po file for errors"
+- "Find all strings missing Arabic translation in my module"
+- "Export translations for my module using Odoo CLI"
+- "Generate an Arabic .po file for my module"
+- "Check translation coverage for my module"
+
+> **v2.0 Migration Note**: The separate `/i18n-extract`, `/i18n-missing`, `/i18n-validate`, and `/i18n-export` commands from v1.x have been consolidated into `/odoo-i18n` sub-commands. Use `/odoo-i18n extract` instead of `/i18n-extract`, etc.
 
 ---
 
@@ -457,27 +469,23 @@ jobs:
 ```
 odoo-i18n-plugin/
 ├── .claude-plugin/
-│   └── plugin.json                    ← Plugin metadata and configuration
+│   └── plugin.json                    <- Plugin metadata and configuration
 ├── odoo-i18n/
-│   ├── SKILL.md                       ← Main skill documentation (700+ lines)
+│   ├── SKILL.md                       <- Main skill documentation (700+ lines)
 │   └── scripts/
-│       ├── i18n_extractor.py          ← Extract strings → generate .pot/.po
-│       ├── i18n_validator.py          ← Validate .po file correctness
-│       ├── i18n_reporter.py           ← Translation coverage reports
-│       └── i18n_converter.py          ← Merge, clean, stats, convert .po files
+│       ├── i18n_extractor.py          <- Extract strings -> generate .pot/.po
+│       ├── i18n_validator.py          <- Validate .po file correctness
+│       ├── i18n_reporter.py           <- Translation coverage reports
+│       └── i18n_converter.py          <- Merge, clean, stats, convert .po files
 ├── commands/
-│   ├── odoo-i18n.md                   ← /odoo-i18n command
-│   ├── i18n-extract.md                ← /i18n-extract command
-│   ├── i18n-missing.md                ← /i18n-missing command
-│   ├── i18n-validate.md               ← /i18n-validate command
-│   └── i18n-export.md                 ← /i18n-export command
+│   └── odoo-i18n.md                   <- /odoo-i18n command (with sub-commands)
 ├── memories/
-│   ├── translation_patterns.md        ← Python/XML/JS translation patterns
-│   ├── rtl_patterns.md                ← RTL/Arabic layout patterns
-│   └── language_codes.md              ← Language codes, formats, currencies
+│   ├── translation_patterns.md        <- Python/XML/JS translation patterns
+│   ├── rtl_patterns.md                <- RTL/Arabic layout patterns
+│   └── language_codes.md              <- Language codes, formats, currencies
 ├── hooks/
-│   └── hooks.json                     ← File event triggers
-└── README.md                          ← This file
+│   └── hooks.json                     <- File event triggers
+└── README.md                          <- This file
 ```
 
 ---
@@ -494,14 +502,14 @@ odoo-i18n-plugin/
 ### Turkish (tr)
 
 - LTR layout
-- Special characters: Ğ, ğ, İ, ı, Ş, ş, Ç, ç, Ö, ö, Ü, ü
+- Special characters: G, g, I, i, S, s, C, c, O, o, U, u
 - 2 plural forms
 
 ### French (fr, fr_FR)
 
 - LTR layout
 - Decimal: comma (,), thousands: space
-- Currency symbol after amount: `150,00 €`
+- Currency symbol after amount: `150,00 EUR`
 - 2 plural forms
 
 ---
@@ -535,7 +543,7 @@ Fuzzy entries need human review. Open the .po file, verify the translation, and 
 ```po
 # WRONG:
 msgid "Found %s records in %d files"
-msgstr "تم العثور على %s سجل"   ← missing second specifier
+msgstr "تم العثور على %s سجل"   <- missing second specifier
 
 # CORRECT:
 msgstr "تم العثور على %s سجل في %d ملفات"

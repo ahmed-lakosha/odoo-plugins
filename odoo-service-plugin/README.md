@@ -1,6 +1,6 @@
 # Odoo Service Manager Plugin
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/taqat-techno/plugins)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/taqat-techno/plugins)
 [![Odoo](https://img.shields.io/badge/odoo-14--19-green)](https://www.odoo.com)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![Author](https://img.shields.io/badge/author-TaqaTechno-purple)](https://taqat-techno.com)
@@ -36,7 +36,8 @@ The `odoo-service` plugin gives Claude Code deep knowledge of Odoo server operat
 | IDE | Config Generated |
 |-----|-----------------|
 | PyCharm | `.idea/runConfigurations/*.xml` |
-| VSCode | `.vscode/tasks.json`, `launch.json`, `settings.json` |
+| VSCode | `.vscode/launch.json`, `tasks.json`, `settings.json`, `extensions.json` |
+| Editor | `.editorconfig` (shared across all IDEs) |
 
 ## Supported Odoo Versions
 
@@ -53,160 +54,197 @@ The `odoo-service` plugin gives Claude Code deep knowledge of Odoo server operat
 
 ## Quick Start
 
+> **v2.0**: All operations are now accessible via a single `/odoo-service` command with sub-commands,
+> or via natural language. The legacy separate commands (`/odoo-start`, `/odoo-stop`, etc.) still work
+> as aliases.
+
 ### Scenario 1: Start Existing Local Project
 
 ```bash
-# Tell Claude: "start odoo with myproject.conf in dev mode"
-# Claude runs:
-python -m odoo -c conf/myproject.conf --dev=all
+# Natural language:
+#   "start odoo with myproject.conf in dev mode"
+
+# Sub-command:
+/odoo-service start --config myproject17.conf --dev
 ```
 
 ### Scenario 2: New Project from Scratch
 
 ```bash
 # 1. Initialize environment
-/odoo-init --version 17 --project myproject --port 8069
+/odoo-service init --version 17 --project myproject --port 8069
 
-# 2. Generate IDE configs
-/odoo-ide --ide both --env local --config myproject17.conf
+# 2. Generate IDE configs (VSCode launch+tasks+settings+extensions + PyCharm + .editorconfig)
+/odoo-service ide --ide both --env local --config myproject17.conf
 
 # 3. Start server
-/odoo-start --config myproject17.conf --dev
+/odoo-service start --config myproject17.conf --dev
 ```
 
 ### Scenario 3: Docker Deployment
 
 ```bash
 # 1. Generate Docker files
-/odoo-docker init --version 17 --project myproject
+/odoo-service docker init --version 17 --project myproject
 
 # 2. Build and start
-/odoo-docker up
+/odoo-service docker up
 
 # 3. View logs
-/odoo-docker logs
+/odoo-service docker logs
 
 # 4. Update module
-/odoo-docker update --db mydb --module my_module
+/odoo-service docker update --db mydb --module my_module
 ```
 
 ### Scenario 4: Database Management
 
 ```bash
 # Backup
-/odoo-db backup --db mydb
+/odoo-service db backup --db mydb
 
 # Restore to new database
-/odoo-db restore --file backups/mydb_20240101.dump --db mydb_restored
+/odoo-service db restore --file backups/mydb_20240101.dump --db mydb_restored
 
 # Reset admin password
-/odoo-db reset-admin --db mydb --password newpassword
+/odoo-service db reset-admin --db mydb --password newpassword
 
 # Backup from Docker container
-/odoo-db backup --docker odoo_db --db mydb
+/odoo-service db backup --docker odoo_db --db mydb
 ```
 
 ---
 
 ## Commands Reference
 
-### /odoo-service — Main Help
+### /odoo-service — Unified Command (v2.0)
 
 ```
-/odoo-service
+/odoo-service <sub-command> [options]
 ```
 
-Displays overview of all commands, environment detection status, and quick-start examples.
+All operations are sub-commands of `/odoo-service`. Legacy standalone commands (`/odoo-start`, `/odoo-stop`, etc.) remain as aliases for backward compatibility.
 
-### /odoo-start — Start Server
+| Sub-command | Alias | Description |
+|-------------|-------|-------------|
+| `start` | `/odoo-start` | Start Odoo server |
+| `stop` | `/odoo-stop` | Stop Odoo server |
+| `init` | `/odoo-init` | Initialize environment |
+| `db` | `/odoo-db` | Database operations |
+| `docker` | `/odoo-docker` | Docker management |
+| `ide` | `/odoo-ide` | IDE configuration |
 
-```
-/odoo-start [--config CONFIG] [--dev] [--docker] [--workers N]
-```
-
-| Example | Action |
-|---------|--------|
-| `/odoo-start` | Interactive config selection |
-| `/odoo-start --config myproject.conf` | Start with specific config |
-| `/odoo-start --dev` | Start with `--dev=all` |
-| `/odoo-start --docker` | `docker-compose up -d` |
-| `/odoo-start --workers 4` | Production mode (4 workers) |
-
-### /odoo-stop — Stop Server
+### /odoo-service start — Start Server
 
 ```
-/odoo-stop [--port PORT] [--docker] [--all]
+/odoo-service start [--config CONFIG] [--dev] [--docker] [--workers N]
 ```
 
 | Example | Action |
 |---------|--------|
-| `/odoo-stop` | Auto-detect and stop |
-| `/odoo-stop --port 8069` | Kill by port |
-| `/odoo-stop --docker` | `docker-compose stop` |
-| `/odoo-stop --all` | Kill all Odoo processes |
+| `/odoo-service start` | Interactive config selection |
+| `/odoo-service start --config myproject.conf` | Start with specific config |
+| `/odoo-service start --dev` | Start with `--dev=all` |
+| `/odoo-service start --docker` | `docker-compose up -d` |
+| `/odoo-service start --workers 4` | Production mode (4 workers) |
 
-### /odoo-init — Initialize Environment
+### /odoo-service stop — Stop Server
 
 ```
-/odoo-init --version N --project NAME [--port PORT] [--docker]
+/odoo-service stop [--port PORT] [--docker] [--all]
 ```
 
 | Example | Action |
 |---------|--------|
-| `/odoo-init --version 17 --project myproject` | Local venv setup |
-| `/odoo-init --docker --version 17 --project myproject` | Docker setup |
-| `/odoo-init --version 17 --project proj --port 8070` | Custom port |
+| `/odoo-service stop` | Auto-detect and stop |
+| `/odoo-service stop --port 8069` | Kill by port |
+| `/odoo-service stop --docker` | `docker-compose stop` |
+| `/odoo-service stop --all` | Kill all Odoo processes |
+
+### /odoo-service init — Initialize Environment
+
+```
+/odoo-service init --version N --project NAME [--port PORT] [--docker]
+```
+
+| Example | Action |
+|---------|--------|
+| `/odoo-service init --version 17 --project myproject` | Local venv setup |
+| `/odoo-service init --docker --version 17 --project myproject` | Docker setup |
+| `/odoo-service init --version 17 --project proj --port 8070` | Custom port |
 
 Creates: venv, conf file, log/data/backup dirs, .gitignore.
 
-### /odoo-db — Database Operations
+### /odoo-service db — Database Operations
 
 ```
-/odoo-db <backup|restore|create|drop|list|reset-admin|modules|auto-backup> [options]
-```
-
-| Example | Action |
-|---------|--------|
-| `/odoo-db backup --db mydb` | Backup to backups/ (dump format) |
-| `/odoo-db backup --db mydb --format sql` | Backup as SQL |
-| `/odoo-db restore --file backup.dump --db newdb` | Restore |
-| `/odoo-db create --db newproject17` | Create database |
-| `/odoo-db drop --db oldproject` | Drop (with confirmation) |
-| `/odoo-db list` | List all databases |
-| `/odoo-db reset-admin --db mydb --password newpass` | Reset admin |
-| `/odoo-db backup --docker odoo_db --db mydb` | Docker backup |
-| `/odoo-db auto-backup --config conf/proj.conf` | Backup all matching DBs |
-
-### /odoo-docker — Docker Management
-
-```
-/odoo-docker <init|build|up|down|start|stop|restart|logs|shell|odoo-shell|update|install|status>
+/odoo-service db <backup|restore|create|drop|list|reset-admin|modules|auto-backup> [options]
 ```
 
 | Example | Action |
 |---------|--------|
-| `/odoo-docker init --version 17 --project myproject` | Generate Docker files |
-| `/odoo-docker build` | `docker-compose build` |
-| `/odoo-docker up` | `docker-compose up -d` |
-| `/odoo-docker down` | `docker-compose down` |
-| `/odoo-docker logs` | Follow container logs |
-| `/odoo-docker shell` | Bash in Odoo container |
-| `/odoo-docker odoo-shell --db mydb` | Odoo Python shell |
-| `/odoo-docker update --db mydb --module my_module` | Update module |
-| `/odoo-docker status` | `docker-compose ps` |
+| `/odoo-service db backup --db mydb` | Backup to backups/ (dump format) |
+| `/odoo-service db backup --db mydb --format sql` | Backup as SQL |
+| `/odoo-service db restore --file backup.dump --db newdb` | Restore |
+| `/odoo-service db create --db newproject17` | Create database |
+| `/odoo-service db drop --db oldproject` | Drop (with confirmation) |
+| `/odoo-service db list` | List all databases |
+| `/odoo-service db reset-admin --db mydb --password newpass` | Reset admin |
+| `/odoo-service db backup --docker odoo_db --db mydb` | Docker backup |
+| `/odoo-service db auto-backup --config conf/proj.conf` | Backup all matching DBs |
 
-### /odoo-ide — IDE Configuration
+### /odoo-service docker — Docker Management
 
 ```
-/odoo-ide [--ide pycharm|vscode|both] [--env local|docker] [--project NAME] [--config CONFIG]
+/odoo-service docker <init|build|up|down|start|stop|restart|logs|shell|odoo-shell|update|install|status>
 ```
 
 | Example | Action |
 |---------|--------|
-| `/odoo-ide --ide vscode --env local --config myproject.conf` | VSCode local config |
-| `/odoo-ide --ide pycharm --env docker --project myproject` | PyCharm Docker config |
-| `/odoo-ide --ide both --env local` | Both IDEs |
-| `/odoo-ide --gitignore-only` | Generate .gitignore only |
+| `/odoo-service docker init --version 17 --project myproject` | Generate Docker files |
+| `/odoo-service docker build` | `docker-compose build` |
+| `/odoo-service docker up` | `docker-compose up -d` |
+| `/odoo-service docker down` | `docker-compose down` |
+| `/odoo-service docker logs` | Follow container logs |
+| `/odoo-service docker shell` | Bash in Odoo container |
+| `/odoo-service docker odoo-shell --db mydb` | Odoo Python shell |
+| `/odoo-service docker update --db mydb --module my_module` | Update module |
+| `/odoo-service docker status` | `docker-compose ps` |
+
+### /odoo-service ide — IDE Configuration (Enhanced in v2.0)
+
+```
+/odoo-service ide [--ide pycharm|vscode|both] [--env local|docker] [--project NAME] [--config CONFIG]
+```
+
+| Example | Action |
+|---------|--------|
+| `/odoo-service ide --ide vscode --env local --config myproject.conf` | VSCode full config (launch+tasks+settings+extensions) |
+| `/odoo-service ide --ide pycharm --env docker --project myproject` | PyCharm Docker config |
+| `/odoo-service ide --ide both --env local` | Both IDEs + .editorconfig |
+| `/odoo-service ide --gitignore-only` | Generate .gitignore only |
+
+**v2.0 IDE enhancements:**
+- VSCode now generates `extensions.json` with recommended Odoo extensions
+- `.editorconfig` generated for consistent formatting across all editors
+- Full debug configurations with attach-to-running-server support
+
+---
+
+## Migration from v1.x
+
+If upgrading from v1.x, note the following changes:
+
+| v1.x Command | v2.0 Equivalent | Notes |
+|-------------|-----------------|-------|
+| `/odoo-start` | `/odoo-service start` | Alias still works |
+| `/odoo-stop` | `/odoo-service stop` | Alias still works |
+| `/odoo-init` | `/odoo-service init` | Alias still works |
+| `/odoo-db` | `/odoo-service db` | Alias still works |
+| `/odoo-docker` | `/odoo-service docker` | Alias still works |
+| `/odoo-ide` | `/odoo-service ide` | Alias still works, now generates `extensions.json` + `.editorconfig` |
+
+All v1.x commands remain functional as aliases. No breaking changes -- upgrade is seamless.
 
 ---
 
@@ -340,17 +378,19 @@ Claude responds to natural language requests using this plugin:
 
 | You say... | Plugin action |
 |------------|--------------|
-| "start odoo" | `/odoo-start` (interactive) |
-| "run odoo with myproject.conf" | `/odoo-start --config myproject.conf` |
-| "stop odoo" | `/odoo-stop` |
-| "kill the server" | `/odoo-stop` |
-| "set up a new odoo 17 project" | `/odoo-init --version 17` |
-| "backup the database" | `/odoo-db backup` |
-| "restore from backup" | `/odoo-db restore` |
-| "start docker" | `/odoo-docker up` |
-| "view container logs" | `/odoo-docker logs` |
-| "generate vscode settings" | `/odoo-ide --ide vscode` |
-| "create pycharm config" | `/odoo-ide --ide pycharm` |
+| "start odoo" | `/odoo-service start` (interactive) |
+| "run odoo with myproject.conf" | `/odoo-service start --config myproject.conf` |
+| "stop odoo" | `/odoo-service stop` |
+| "kill the server" | `/odoo-service stop` |
+| "set up a new odoo 17 project" | `/odoo-service init --version 17` |
+| "backup the database" | `/odoo-service db backup` |
+| "backup the taqat17 database" | `/odoo-service db backup --db taqat17` |
+| "restore from backup" | `/odoo-service db restore` |
+| "initialize a new odoo 17 environment" | `/odoo-service init --version 17` |
+| "start docker" | `/odoo-service docker up` |
+| "view container logs" | `/odoo-service docker logs` |
+| "set up vscode for my odoo project" | `/odoo-service ide --ide vscode` |
+| "create pycharm config" | `/odoo-service ide --ide pycharm` |
 
 ---
 
@@ -436,4 +476,5 @@ MIT License — See LICENSE file for details.
 ---
 
 *Built by TaqaTechno — Odoo development specialists since 2019*
+*Plugin v2.0.0 — unified sub-command architecture*
 *Website: https://taqat-techno.com | Email: support@example.com*
