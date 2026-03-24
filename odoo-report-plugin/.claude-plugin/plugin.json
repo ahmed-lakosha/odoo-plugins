@@ -1,7 +1,7 @@
 {
   "name": "odoo-report",
   "version": "2.1.0",
-  "description": "Odoo Email Templates & QWeb Reports — create, validate, migrate, and debug across Odoo 14-19",
+  "description": "Odoo Email Templates & QWeb Reports - create, validate, migrate, and debug across Odoo 14-19",
   "author": {
     "name": "TaqaTechno",
     "email": "info@taqatechno.com",
@@ -11,6 +11,9 @@
   "homepage": "https://github.com/taqat-techno/plugins",
   "skills": [
     "./odoo-report"
+  ],
+  "commands": [
+    "./commands"
   ],
   "hooks": "./hooks/hooks.json"
 }
