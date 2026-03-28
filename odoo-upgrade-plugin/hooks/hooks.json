@@ -41,7 +41,6 @@
           {
             "type": "prompt",
             "prompt": "Check if the output indicates an Odoo version compatibility issue. Look for patterns like: 'Invalid field', 'Service rpc is not available', 'Invalid view type', 'cannot be located in parent view', 'cannot import name slug', 'cannot import name.*url_for', 'Invalid view definition', 'Entity.*not defined', 'context_today.*strftime', 'AttributeError.*tzinfo', 'numbercall', 'kanban-box'. If it is a compatibility issue, respond {\"ok\": true, \"reason\": \"This looks like an Odoo version compatibility issue. Consider using the odoo-upgrade skill or /odoo-precheck to diagnose and fix it.\"} otherwise {\"ok\": false}.",
-            "model": "haiku",
             "timeout": 10
           }
         ]
