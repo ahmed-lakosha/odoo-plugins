@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Shared configuration loader for odoo-upgrade plugin hooks.
 

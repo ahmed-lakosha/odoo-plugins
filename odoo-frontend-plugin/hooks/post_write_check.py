@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """PostToolUse hook: prints advisory reminders after Write/Edit operations.
 
 Receives JSON on stdin with tool_input containing file_path and content.

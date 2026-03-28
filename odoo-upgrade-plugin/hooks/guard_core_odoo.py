@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 PreToolUse hook: Block writes to core Odoo framework files.
 

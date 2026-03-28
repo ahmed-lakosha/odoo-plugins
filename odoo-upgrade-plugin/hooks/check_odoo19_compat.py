@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 PostToolUse hook: Check written/edited files for Odoo version compatibility issues.
 
@@ -6,6 +6,8 @@ Reads tool input JSON from stdin. Detects the target Odoo version from the file
 path using configurable patterns, then runs version-appropriate compatibility checks.
 Always exits 0 (advisory, never blocks).
 """
+
+from __future__ import annotations
 
 import json
 import re
